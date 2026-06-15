@@ -1,0 +1,14 @@
+{
+  "name": "queue-system",
+  "version": "1.0.0",
+  "description": "湘阁里辣等位拿号叫号系统",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "@supabase/supabase-js": "^2.49.0"
+  }
+}
