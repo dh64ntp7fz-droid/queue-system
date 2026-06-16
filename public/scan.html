@@ -5,312 +5,168 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>湘阁里辣 · 扫码取号</title>
 <style>
-:root {
-  --primary: #B22222; --gold: #C9A96E; --gold-light: #F5ECD7;
-  --text: #2C2C2C; --text-light: #6B6B6B;
-  --green: #2E7D32; --green-bg: #E8F5E9;
-  --blue: #1565C0; --blue-bg: #E3F2FD;
-  --orange: #E65100; --orange-bg: #FFF3E0;
-  --bg: #FDF8F0;
-}
 * { margin:0; padding:0; box-sizing:border-box; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
-  background: linear-gradient(180deg, #5C0A0A 0%, #8B1515 30%, var(--bg) 30%);
-  min-height: 100vh; color: var(--text);
+  background: linear-gradient(180deg, #B22222 0%, #8B0000 40%, #f5f5f5 40%);
+  min-height: 100vh; display: flex; flex-direction: column; align-items: center;
 }
+.logo { padding: 20px 0 10px; color: #fff; text-align: center; }
+.logo h1 { font-size: 18px; }
+.logo .sub { font-size: 11px; opacity: .7; margin-top: 2px; }
 
-/* ── Header ── */
-.scan-header {
-  text-align:center; padding:32px 16px 24px;
+/* Form */
+.form-card {
+  background: #fff; border-radius: 14px; padding: 20px; width: 90%; max-width: 340px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.1); margin-bottom: 20px;
 }
-.scan-logo { font-size:56px; margin-bottom:8px; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
-.scan-header h1 { font-size:22px; color:#fff; font-weight:700; letter-spacing:2px; margin-bottom:4px; }
-.scan-header .sub { font-size:13px; color:rgba(255,255,255,0.7); letter-spacing:1px; }
+.form-card label { font-size: 12px; color: #888; display: block; margin: 8px 0 3px; }
+.form-card .label-main { font-size: 14px; color: #333; font-weight: 700; margin-top: 0; }
+.people-btns { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.people-btns button {
+  width: 40px; height: 40px; border-radius: 10px; border: 2px solid #B22222;
+  background: #fff; color: #B22222; font-size: 16px; font-weight: 700; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.people-btns button:active { background: #B22222; color: #fff; }
+.people-btns input {
+  width: 46px; height: 40px; border-radius: 10px; border: 2px solid #ccc;
+  text-align: center; font-size: 14px; outline: none; font-weight: 700;
+}
+.form-card input[type=tel] {
+  width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 10px;
+  font-size: 15px; outline: none; margin-top: 4px;
+}
+.form-card input[type=tel]:focus { border-color: #B22222; }
+.type-preview {
+  padding: 8px; border-radius: 8px; text-align: center; font-size: 13px;
+  font-weight: 700; margin: 8px 0; background: #FFF3E0; color: #E65100;
+}
+.take-btn {
+  width: 100%; padding: 12px; background: #B22222; color: #fff; border: none;
+  border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 8px;
+  -webkit-tap-highlight-color: transparent;
+}
+.take-btn:active { background: #8B0000; }
 
-/* ── Main Card ── */
-.card {
-  background:#fff; border-radius:16px; margin:0 16px 24px; padding:24px 20px;
-  box-shadow:0 4px 20px rgba(0,0,0,0.08);
+/* Result */
+.result-card {
+  background: #fff; border-radius: 14px; padding: 20px; width: 90%; max-width: 340px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.1); text-align: center; display: none;
+  margin-bottom: 20px;
 }
-
-/* ── Store Info ── */
-.store-info {
-  text-align:center; margin-bottom:20px; padding-bottom:16px;
-  border-bottom:1px solid #f0f0f0;
+.result-card.show { display: block; }
+.result-card .qr { width: 160px; height: 160px; margin: 0 auto 8px; background: #f8f8f8; border-radius: 8px; }
+.result-card .num { font-size: 52px; font-weight: 800; color: #B22222; line-height: 1.1; }
+.result-card .type-label { font-size: 14px; color: #999; margin: 4px 0; }
+.result-card .time-label { font-size: 13px; color: #888; margin-bottom: 6px; }
+.result-card .hint { font-size: 11px; color: #B22222; font-weight: 600; margin: 8px 0; }
+.result-card .new-btn {
+  padding: 8px 24px; background: #f0f0f0; border: none; border-radius: 8px;
+  font-size: 13px; cursor: pointer; color: #666;
 }
-.store-name { font-size:18px; font-weight:700; color:var(--primary); }
-.store-detail { font-size:12px; color:var(--text-light); margin-top:4px; }
-
-/* ── Form ── */
-.form-group { margin-bottom:16px; }
-.form-group label {
-  display:block; font-size:14px; font-weight:600; color:var(--text); margin-bottom:6px;
-}
-.form-group label .req { color:var(--primary); }
-.form-group input {
-  width:100%; padding:12px 14px; border:2px solid #e8e8e8; border-radius:10px;
-  font-size:16px; outline:none; font-family:inherit; background:#fafafa;
-  transition:.2s;
-}
-.form-group input:focus { border-color:var(--primary); background:#fff; }
-.form-row { display:flex; gap:12px; }
-.form-row .form-group { flex:1; }
-
-.btn-submit {
-  width:100%; padding:14px; background:linear-gradient(135deg,var(--primary),#D4443F);
-  color:#fff; border:none; border-radius:12px; font-size:18px; font-weight:700;
-  cursor:pointer; margin-top:8px; font-family:inherit;
-  box-shadow:0 4px 16px rgba(178,34,34,0.35);
-  transition:all .2s;
-}
-.btn-submit:hover { transform:translateY(-1px); box-shadow:0 6px 24px rgba(178,34,34,0.45); }
-.btn-submit:active { transform:scale(.98); }
-.btn-submit:disabled { background:#ccc; box-shadow:none; cursor:not-allowed; }
-
-/* ── Result Card ── */
-.result-card { display:none; }
-.result-card.show { display:block; }
-.result-number {
-  text-align:center; padding:20px;
-}
-.result-number .label { font-size:13px; color:var(--text-light); margin-bottom:4px; }
-.result-number .number {
-  font-size:64px; font-weight:900; color:var(--primary); letter-spacing:4px; line-height:1.1;
-}
-.result-number .type-tag {
-  display:inline-block; padding:4px 16px; border-radius:12px; font-size:13px;
-  font-weight:600; background:var(--gold-light); color:var(--text); margin-bottom:12px;
-}
-.result-time {
-  text-align:center; font-size:16px; color:var(--text-light); margin-top:4px;
-}
-.result-time strong { color:var(--text); font-size:20px; }
-.result-detail {
-  background:var(--bg); border-radius:12px; padding:16px; margin-top:16px;
-}
-.result-detail .row { display:flex; justify-content:space-between; padding:8px 0; font-size:14px; border-bottom:1px solid rgba(0,0,0,0.05); }
-.result-detail .row:last-child { border:none; }
-.result-detail .row .key { color:var(--text-light); }
-.result-detail .row .val { font-weight:600; }
-.result-ahead {
-  display:none;
-}
-
-.result-tips {
-  margin-top:16px; padding:12px; background:var(--gold-light);
-  border-radius:12px; font-size:13px; color:var(--text); line-height:1.8;
-}
-.result-tips strong { color:var(--primary); }
-
-.btn-new {
-  width:100%; padding:12px; background:#fff; color:var(--primary);
-  border:2px solid var(--primary); border-radius:12px; font-size:15px;
-  font-weight:600; cursor:pointer; margin-top:16px; font-family:inherit;
-  transition:.2s;
-}
-.btn-new:hover { background:var(--primary); color:#fff; }
-
-/* ── Toast ── */
 .toast {
-  position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:999;
-  background:#333; color:#fff; padding:10px 24px; border-radius:8px; font-size:14px;
-  opacity:0; transition:opacity .3s; pointer-events:none;
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: #333; color: #fff; padding: 8px 20px; border-radius: 20px;
+  font-size: 13px; z-index: 999; opacity: 0; transition: .3s; pointer-events: none;
 }
-.toast.show { opacity:1; }
-.toast.error { background:#C62828; }
-
-/* ── Loading ── */
-.loading-overlay { display:none; }
-.loading-overlay.show { display:flex; position:fixed; inset:0; background:rgba(0,0,0,0.3); align-items:center; justify-content:center; z-index:300; }
-.spinner { width:40px; height:40px; border:4px solid rgba(255,255,255,0.4); border-top-color:#fff; border-radius:50%; animation:spin .8s linear infinite; }
-@keyframes spin { to{transform:rotate(360deg)} }
-
-/* ── Footer ── */
-.scan-footer { text-align:center; padding:16px; font-size:11px; color:var(--text-light); }
+.toast.show { opacity: 1; }
 </style>
 </head>
 <body>
 
-<div class="scan-header">
-  <div class="scan-logo">🍜</div>
-  <h1>湘阁里辣</h1>
-  <div class="sub" id="storeSubtitle">扫码取号 · 美味不用等</div>
+<div class="logo">
+  <h1>🍜 湘阁里辣</h1>
+  <div class="sub" id="storeLabel">扫码取号</div>
 </div>
 
-<div class="card" id="formCard">
-  <div class="store-info">
-    <div class="store-name" id="storeName">加载中...</div>
-    <div class="store-detail" id="storeDetail"></div>
-  </div>
-
-  <div class="form-row">
-    <div class="form-group">
-      <label>用餐人数 <span class="req">*</span></label>
-      <input type="number" id="people" placeholder="如: 4" min="1" max="20" value="2" oninput="updateTypePreview()">
-    </div>
-    <div class="form-group">
-      <label>号段</label>
-      <div id="typePreview" style="padding:12px 14px;border:2px solid #e8e8e8;border-radius:10px;font-size:16px;background:#f5f5f5;font-weight:700;color:var(--primary);text-align:center;">B区(2-4人)</div>
-    </div>
-  </div>
-  <div class="form-group">
-    <label>您的姓氏 <span class="req">*</span></label>
-    <input type="text" id="name" placeholder="如: 张先生/女士" maxlength="20">
-  </div>
-  <div class="form-group">
-    <label>手机号码 <span class="req">*</span></label>
-    <input type="tel" id="phone" placeholder="接收叫号通知短信" maxlength="11">
-  </div>
-  <div class="form-group">
-    <label>特殊需求（选填）</label>
-    <input type="text" id="note" placeholder="如: 需要宝宝椅" maxlength="50">
-  </div>
-
-  <button class="btn-submit" id="submitBtn" onclick="submitQueue()">立即取号</button>
+<!-- Form -->
+<div class="form-card" id="formCard">
+  <div class="label-main">👥 用餐人数</div>
+  <div class="people-btns" id="scanPeopleBtns"></div>
+  <div class="type-preview" id="typePreview">👥 选择人数自动分配号段</div>
+  <label>📱 手机号码（接收叫号通知）</label>
+  <input type="tel" id="phone" placeholder="输入手机号" maxlength="11">
+  <button class="take-btn" onclick="doTake()">🎫  我要取号</button>
 </div>
 
-<!-- 结果卡片 -->
-<div class="card result-card" id="resultCard">
-  <div class="result-number">
-    <div class="type-tag" id="resultType">B区(2-4人)</div>
-    <div class="label">排队号</div>
-    <div class="number" id="resultNumber">1</div>
-    <div class="result-time">取号时间：<strong id="resultTime">--:--</strong></div>
-  </div>
-  <div class="result-ahead">
-    <div class="ahead-num" id="aheadNum">0</div>
-    <div class="ahead-label">桌 前面等待</div>
-  </div>
-  <div class="result-detail">
-    <div class="row"><span class="key">顾客</span><span class="val" id="resultName">-</span></div>
-    <div class="row"><span class="key">人数</span><span class="val" id="resultPeople">-</span></div>
-    <div class="row"><span class="key">手机</span><span class="val" id="resultPhone">-</span></div>
-  </div>
-  <div class="result-tips">
-    <strong>温馨提示:</strong><br>
-    • 留意手机短信和现场叫号，过号需重新取号<br>
-    • 叫号后请在 <strong>3分钟</strong> 内到前台确认入座<br>
-    • 如需取消，请联系前台工作人员
-  </div>
-  <button class="btn-new" onclick="resetForm()">🔄 重新取号</button>
+<!-- Result -->
+<div class="result-card" id="resultCard">
+  <img class="qr" id="qrImg" src="" alt="QR">
+  <div class="num" id="resNum"></div>
+  <div class="type-label" id="resType"></div>
+  <div class="time-label" id="resTime"></div>
+  <div class="hint">📸 请截图保存，叫号时出示</div>
+  <button class="new-btn" onclick="resetForm()">再取一个号</button>
 </div>
 
-<div class="scan-footer">湘阁里辣 · 等位叫号系统</div>
 <div class="toast" id="toast"></div>
-<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
 
 <script>
-// 从 URL 参数获取门店 ID
-const urlParams = new URLSearchParams(window.location.search);
-const storeId = urlParams.get('store') || 'dalang';
-let currentRecord = null;
+const params = new URLSearchParams(location.search);
+const storeId = params.get('store') || 'dalang';
+let currentPeople = 2;
 
-// 加载门店信息
-async function loadStoreInfo() {
-  try {
-    const r = await fetch(`/api/store/${storeId}/info`);
-    if (!r.ok) throw new Error('门店不存在');
-    const d = await r.json();
-    document.getElementById('storeName').textContent = d.name;
-    document.getElementById('storeSubtitle').textContent = '扫码取号 · ' + d.name;
-    let detail = '';
-    if (d.phone) detail += '📞 ' + d.phone + '  ';
-    if (d.parking) detail += '🅿️ ' + d.parking;
-    document.getElementById('storeDetail').textContent = detail || '欢迎光临';
-  } catch(e) {
-    document.getElementById('storeName').textContent = '门店未配置';
-    toast('门店信息加载失败', 'error');
-  }
+// People buttons
+(function() {
+  let html = '';
+  for (let i=1; i<=10; i++) html += `<button onclick="selectPeople(${i})" id="pBtn${i}">${i}</button>`;
+  html += '<input type="number" id="customPpl" placeholder="10+" min="11" max="99" oninput="selectPeople(parseInt(this.value)||0)">';
+  document.getElementById('scanPeopleBtns').innerHTML = html;
+  selectPeople(2);
+})();
+
+function selectPeople(n) {
+  currentPeople = n;
+  document.querySelectorAll('#scanPeopleBtns button').forEach(b => b.style.background='');
+  const btn = document.getElementById('pBtn'+n);
+  if (btn) btn.style.background = '#B22222'; btn.style.color = '#fff';
+  else document.getElementById('customPpl').value = n||'';
+
+  const preview = document.getElementById('typePreview');
+  if (n === 1) { preview.textContent = '🏷️ A区 · 1人'; preview.style.background='#E3F2FD'; preview.style.color='#1565C0'; }
+  else if (n <= 4 && n >= 2) { preview.textContent = '🏷️ B区 · 2-4人'; preview.style.background='#FFF3E0'; preview.style.color='#E65100'; }
+  else if (n >= 5) { preview.textContent = '🏷️ C区 · 5人以上'; preview.style.background='#F3E5F5'; preview.style.color='#6A1B9A'; }
+  else { preview.textContent = '🏷️ 自动分配'; preview.style.background='#f5f5f5'; preview.style.color='#999'; }
 }
 
-function updateTypePreview() {
-  const people = parseInt(document.getElementById('people').value) || 1;
-  let label;
-  if (people === 1) label = 'A区(1人)';
-  else if (people >= 2 && people <= 4) label = 'B区(2-4人)';
-  else label = 'C区(5人以上)';
-  document.getElementById('typePreview').textContent = label;
-}
-
-// 提交取号
-async function submitQueue() {
-  const name = document.getElementById('name').value.trim();
+async function doTake() {
   const phone = document.getElementById('phone').value.trim();
-  const people = parseInt(document.getElementById('people').value) || 2;
-  const note = document.getElementById('note').value.trim();
-
-  if (!name) { toast('请填写您的姓氏', 'error'); return; }
-  if (!phone) { toast('请填写手机号码', 'error'); return; }
-  if (!/^1\d{10}$/.test(phone)) { toast('请填写正确的11位手机号', 'error'); return; }
-
-  const btn = document.getElementById('submitBtn');
-  btn.disabled = true;
-  btn.textContent = '提交中...';
-  showLoading(true);
+  if (!phone) { toast('请输入手机号码'); return; }
+  if (!/^1\d{10}$/.test(phone)) { toast('手机号格式不对'); return; }
+  if (!currentPeople || currentPeople < 1) { toast('请选择人数'); return; }
 
   try {
     const r = await fetch(`/api/store/${storeId}/scan-queue`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, phone, people, note })
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ phone, people:currentPeople })
     });
     const d = await r.json();
-    if (!r.ok) { toast(d.error || '取号失败', 'error'); return; }
+    if (!r.ok) { toast(d.error||'取号失败'); return; }
 
-    currentRecord = d;
-    showResult(d);
-  } catch(e) {
-    toast('网络错误，请重试', 'error');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '立即取号';
-    showLoading(false);
-  }
-}
-
-function showResult(record) {
-  document.getElementById('formCard').style.display = 'none';
-  document.getElementById('resultCard').classList.add('show');
-  const typeNames = { A: 'A区(1人)', B: 'B区(2-4人)', C: 'C区(5人以上)' };
-  document.getElementById('resultType').textContent = typeNames[record.type] || '已取号';
-  document.getElementById('resultNumber').textContent = record.queue_number;
-  // 取号时间
-  const now = new Date();
-  const timeStr = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
-  document.getElementById('resultTime').textContent = timeStr;
-  document.getElementById('aheadNum').textContent = record.queue_ahead || 0;
-  document.getElementById('resultName').textContent = record.name;
-  document.getElementById('resultPeople').textContent = record.people + '人';
-  document.getElementById('resultPhone').textContent = record.phone;
+    // 显示结果
+    const typeMap = { A:'A区 · 1人', B:'B区 · 2-4人', C:'C区 · 5人以上' };
+    document.getElementById('resNum').textContent = d.queue_number;
+    document.getElementById('resType').textContent = typeMap[d.type] || '';
+    document.getElementById('resTime').textContent = '取号: ' + new Date(d.created_at).toLocaleString('zh-CN', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    document.getElementById('qrImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(location.href)}`;
+    document.getElementById('resultCard').classList.add('show');
+    document.getElementById('formCard').style.display = 'none';
+  } catch(e) { toast('取号失败'); }
 }
 
 function resetForm() {
-  document.getElementById('formCard').style.display = '';
   document.getElementById('resultCard').classList.remove('show');
-  document.getElementById('name').value = '';
+  document.getElementById('formCard').style.display = '';
   document.getElementById('phone').value = '';
-  document.getElementById('people').value = '2';
-  document.getElementById('note').value = '';
-  currentRecord = null;
 }
 
-function showLoading(show) {
-  document.getElementById('loadingOverlay').classList.toggle('show', show);
-}
-
-// ── Toast ──
-let toastTimer;
-function toast(msg, type) {
+let _t;
+function toast(msg) {
   const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.className = 'toast ' + (type || '') + ' show';
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(_t); _t = setTimeout(() => el.classList.remove('show'), 2000);
 }
-
-// 初始化
-loadStoreInfo();
 </script>
 </body>
 </html>

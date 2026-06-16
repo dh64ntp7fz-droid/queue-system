@@ -2,947 +2,486 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>湘阁里辣 · 等位叫号</title>
 <style>
-:root {
-  --bg: #FDF8F0; --card-bg: #FFFFFF; --primary: #B22222;
-  --gold: #C9A96E; --gold-light: #F5ECD7; --text: #2C2C2C;
-  --text-light: #6B6B6B; --green: #2E7D32; --green-bg: #E8F5E9;
-  --red: #C62828; --red-bg: #FFEBEE; --blue: #1565C0; --blue-bg: #E3F2FD;
-  --orange: #E65100; --orange-bg: #FFF3E0; --purple: #6A1B9A; --purple-bg: #F3E5F5;
-  --radius: 12px; --shadow: 0 2px 12px rgba(0,0,0,0.06); --shadow-lg: 0 8px 30px rgba(0,0,0,0.10);
-}
 * { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; overflow-x:hidden; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
-  background: var(--bg); color: var(--text); min-height: 100vh;
+  background: #f5f5f5; color: #2C2C2C; font-size: 14px;
+  display: flex; flex-direction: column; min-height: 100vh;
 }
-
-/* ── 登录页 ── */
-.login-overlay {
-  position: fixed; inset:0; background: linear-gradient(135deg, #5C0A0A 0%, #7A1212 50%, #4A0606 100%);
-  display:flex; align-items:center; justify-content:center; z-index:9999; transition: opacity .4s;
-}
-.login-overlay.hidden { opacity:0; pointer-events:none; }
-.login-box {
-  background:#fff; border-radius:16px; padding:36px 32px; width:380px; max-width:90vw;
-  text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.3);
-}
-.logo-icon { font-size:48px; margin-bottom:8px; }
-.login-box h2 { font-size:22px; margin-bottom:4px; color:var(--primary); }
-.login-box .sub { font-size:13px; color:var(--text-light); margin-bottom:20px; }
-.login-box input {
-  width:100%; padding:10px 14px; border:2px solid #e8e8e8; border-radius:8px;
-  font-size:15px; margin-bottom:12px; outline:none; font-family:inherit;
-}
-.login-box input:focus { border-color:var(--primary); }
-.login-box .btn-login {
-  width:100%; padding:11px; background: linear-gradient(135deg, var(--primary), #D4443F);
-  color:#fff; border:none; border-radius:8px; font-size:16px; font-weight:600; cursor:pointer; margin-top:4px;
-}
-.login-box .btn-login:hover { opacity:.9; transform:translateY(-1px); }
-.login-box .login-hint { font-size:12px; color:var(--text-light); margin-top:12px; }
-
-/* ── Header ── */
+/* HEADER - compact */
 .header {
-  background: linear-gradient(135deg, #5C0A0A 0%, #9B1B1B 30%, #7A1212 70%, #5C0A0A 100%);
-  color:#fff; padding:14px 20px; display:flex; align-items:center;
-  justify-content:space-between; flex-wrap:wrap; gap:12px;
-  box-shadow:0 4px 24px rgba(100,8,8,0.35); position:sticky; top:0; z-index:100;
-  border-bottom:2px solid rgba(201,169,110,0.55);
+  background: linear-gradient(135deg, #B22222, #8B0000); color: #fff;
+  padding: 6px 12px; display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 4px rgba(0,0,0,.15);
 }
-.header-brand { display:flex; align-items:center; gap:12px; }
-.header-logo-icon { font-size:32px; filter:drop-shadow(0 1px 2px rgba(255,255,255,0.15)); }
-.header-title { display:flex; flex-direction:column; }
-.header-store { font-size:17px; font-weight:700; letter-spacing:2px; line-height:1.3; text-shadow:0 1px 3px rgba(0,0,0,0.3); }
-.header-subtitle { font-size:12px; font-weight:400; opacity:.7; letter-spacing:3px; color:var(--gold); }
-.header-right { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-.store-select {
-  padding:8px 14px; border:2px solid rgba(255,255,255,0.3); border-radius:8px;
-  background:rgba(255,255,255,0.15); color:#fff; font-size:14px; font-weight:600;
-  cursor:pointer; outline:none; font-family:inherit; max-width:160px;
+.header h1 { font-size: 15px; font-weight: 700; }
+.header .sub { font-size: 11px; opacity: .85; margin-top: 1px; }
+.header .btns { display: flex; gap: 6px; }
+.header .btns button {
+  background: rgba(255,255,255,.15); border: none; color: #fff;
+  width: 32px; height: 32px; border-radius: 8px; font-size: 16px; cursor: pointer;
 }
-.store-select option { color:var(--text); background:#fff; }
-.date-picker {
-  padding:8px 14px; border:2px solid rgba(255,255,255,0.3); border-radius:8px;
-  background:rgba(255,255,255,0.15); color:#fff; font-size:14px; font-weight:600;
-  cursor:pointer; outline:none; width:140px;
-}
-.date-picker::-webkit-calendar-picker-indicator { filter:invert(1); cursor:pointer; }
-.status-badge { display:flex; align-items:center; gap:4px; font-size:13px; background:rgba(255,255,255,0.2); padding:6px 12px; border-radius:20px; }
-.status-badge .dot { width:8px; height:8px; border-radius:50%; display:inline-block; }
-.dot.live { background:#4CAF50; animation:pulse 2s infinite; }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-.header-btn {
-  background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3);
-  color:#fff; padding:6px 12px; border-radius:8px; cursor:pointer;
-  font-size:13px; font-family:inherit; transition:all .2s; white-space:nowrap;
-}
-.header-btn:hover { background:rgba(255,255,255,0.25); }
-.header-btn.primary { background:var(--gold); border-color:var(--gold); color:#fff; font-weight:700; }
-.header-btn.primary:hover { background:#D4B87A; }
 
-/* ── Main ── */
-.main { max-width:1200px; margin:0 auto; padding:24px 16px; }
+/* QUICK TAKE */
+.quick-take { padding: 8px 10px; background: #fff; border-bottom: 1px solid #eee; position: sticky; top: 44px; z-index: 99; }
+.quick-take .label { font-size: 11px; color: #999; margin-bottom: 6px; text-align: center; }
+.people-row { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; justify-content: center; }
+.people-row button {
+  min-width: 36px; height: 36px; border-radius: 8px; border: 2px solid #B22222;
+  background: #fff; color: #B22222; font-size: 15px; font-weight: 700; cursor: pointer;
+  transition: .1s; -webkit-tap-highlight-color: transparent;
+}
+.people-row button:active { background: #B22222; color: #fff; }
+.people-row input {
+  width: 52px; height: 36px; border-radius: 8px; border: 2px solid #ccc;
+  text-align: center; font-size: 14px; font-weight: 700; outline: none;
+}
+.people-row input:focus { border-color: #B22222; }
+
+/* MAIN SCROLL AREA */
+.main-scroll {
+  flex: 1; overflow-y: auto; padding: 8px 10px 20px;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* SECTION */
+.section { margin-bottom: 12px; }
 .section-title {
-  font-size:18px; font-weight:700; color:var(--text); margin-bottom:16px;
-  display:flex; align-items:center; gap:8px;
+  font-size: 12px; font-weight: 700; color: #888; padding: 4px 2px 6px;
+  display: flex; align-items: center; gap: 6px;
 }
-.section-title::before { content:''; width:4px; height:20px; background:var(--primary); border-radius:2px; }
-.section-badge {
-  font-size:12px; padding:2px 10px; border-radius:12px; font-weight:600; margin-left:4px;
-}
-.section-badge.a { background:var(--blue-bg); color:var(--blue); }
-.section-badge.b { background:var(--orange-bg); color:var(--orange); }
-.section-badge.c { background:var(--purple-bg); color:var(--purple); }
 
-/* ── 队列卡片网格 ── */
-.queue-grid {
-  display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:32px;
+/* QUEUE ITEMS - compact row */
+.queue-item {
+  display: flex; align-items: center; padding: 8px 10px; background: #fff;
+  border-radius: 8px; margin-bottom: 4px; gap: 8px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.04);
+  border-left: 3px solid #B22222;
 }
-@media(max-width:960px) { .queue-grid { grid-template-columns:repeat(3,1fr); } }
-@media(max-width:680px) { .queue-grid { grid-template-columns:repeat(2,1fr); } }
-@media(max-width:420px) { .queue-grid { grid-template-columns:1fr; } }
+.queue-item.skipped { border-left-color: #ccc; opacity: .6; }
+.queue-num {
+  font-size: 26px; font-weight: 800; color: #B22222; min-width: 40px; text-align: center;
+  line-height: 1;
+}
+.skipped .queue-num { color: #999; }
+.queue-info { flex: 1; min-width: 0; }
+.queue-info .ppl { font-size: 14px; font-weight: 700; }
+.queue-info .wait { font-size: 11px; color: #999; margin-top: 1px; }
+.queue-info .phone { font-size: 10px; color: #aaa; }
+.queue-acts { display: flex; gap: 4px; flex-shrink: 0; }
+.queue-acts button {
+  padding: 5px 10px; border-radius: 6px; border: none; font-size: 12px;
+  font-weight: 600; cursor: pointer; white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-call { background: #B22222; color: #fff; }
+.btn-call:active { background: #8B0000; }
+.btn-cnl { background: #f0f0f0; color: #666; }
+.btn-cnl:active { background: #ddd; }
 
-/* ── 排队卡片 ── */
-.queue-card {
-  background:var(--card-bg); border-radius:var(--radius); padding:16px 14px 14px;
-  box-shadow:var(--shadow); position:relative; overflow:hidden;
-  transition:all .25s; border:2px solid transparent;
-}
-.queue-card:hover { transform:translateY(-2px); box-shadow:var(--shadow-lg); }
-.queue-card::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; }
-.queue-card.type-a::before { background:linear-gradient(90deg,var(--blue),#64B5F6); }
-.queue-card.type-b::before { background:linear-gradient(90deg,var(--orange),#FFB74D); }
-.queue-card.type-c::before { background:linear-gradient(90deg,var(--purple),#CE93D8); }
+.empty-hint { text-align: center; color: #ccc; padding: 24px; font-size: 13px; }
 
-/* 状态颜色 */
-.queue-card.status-waiting { background:#fff; }
-.queue-card.status-called {
-  background:linear-gradient(135deg,#FFF8E1,#FFECB3); border-color:#FFC107;
-  animation:glow 1.5s ease-in-out infinite alternate;
-}
-@keyframes glow { from{box-shadow:0 0 8px rgba(255,193,7,0.3)} to{box-shadow:0 0 20px rgba(255,193,7,0.6)} }
-.queue-card.status-seated { opacity:.65; background:#f8f8f8; }
-.queue-card.status-skipped { opacity:.55; background:#fff0f0; border-color:#ef9a9a; }
-.queue-card.status-cancelled { opacity:.45; background:#f5f5f5; text-decoration:line-through; }
+/* HISTORY TABLE */
+.history table { width: 100%; border-collapse: collapse; font-size: 12px; background: #fff; border-radius: 8px; overflow: hidden; }
+.history th { background: #f9f9f9; color: #888; padding: 6px 4px; font-weight: 400; }
+.history td { padding: 5px 4px; text-align: center; border-bottom: 1px solid #f5f5f5; }
+.history td:first-child { font-weight: 700; color: #B22222; }
+.history .row-btn { padding: 3px 8px; font-size: 11px; border: 1px solid #ddd; background: #fff; border-radius: 4px; cursor: pointer; }
 
-.queue-number {
-  font-size:32px; font-weight:900; letter-spacing:1px; margin-top:6px; margin-bottom:2px;
+/* MODAL */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4);
+  z-index: 200; align-items: center; justify-content: center;
 }
-.queue-number.a { color:var(--blue); }
-.queue-number.b { color:var(--orange); }
-.queue-number.c { color:var(--purple); }
-.queue-type-tag {
-  font-size:10px; padding:1px 6px; border-radius:4px; font-weight:600; display:inline-block; margin-bottom:8px;
+.modal-overlay.show { display: flex; }
+.modal-box {
+  background: #fff; width: 90%; max-width: 360px; border-radius: 14px;
+  padding: 20px; max-height: 80vh; overflow-y: auto;
 }
-.queue-type-tag.a { background:var(--blue-bg); color:var(--blue); }
-.queue-type-tag.b { background:var(--orange-bg); color:var(--orange); }
-.queue-type-tag.c { background:var(--purple-bg); color:var(--purple); }
-.queue-info { font-size:13px; color:var(--text-light); line-height:1.8; margin-bottom:8px; }
-.queue-info strong { color:var(--text); }
-.queue-status-tag {
-  display:inline-block; padding:2px 10px; border-radius:12px; font-size:11px; font-weight:700; margin-bottom:8px;
+.modal-box h3 { font-size: 16px; margin-bottom: 14px; }
+.modal-box label { display: block; font-size: 12px; color: #888; margin: 8px 0 3px; }
+.modal-box input[type=text], .modal-box input[type=range] { width: 100%; margin-bottom: 6px; }
+.modal-box input[type=text] {
+  padding: 8px; border: 1px solid #ddd; border-radius: 8px; font-size: 13px; outline: none;
 }
-.queue-status-tag.waiting { background:var(--green-bg); color:var(--green); }
-.queue-status-tag.called { background:#FFF8E1; color:#F57F17; }
-.queue-status-tag.seated { background:#F5F5F5; color:#999; }
-.queue-status-tag.skipped { background:var(--red-bg); color:var(--red); }
-.queue-status-tag.cancelled { background:#F5F5F5; color:#999; }
+.modal-box input[type=text]:focus { border-color: #B22222; }
+.modal-toggle {
+  display: flex; align-items: center; justify-content: space-between; padding: 6px 0;
+  font-size: 13px;
+}
+.modal-btn {
+  width: 100%; padding: 10px; background: #B22222; color: #fff; border: none;
+  border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 12px;
+}
 
-/* 倒计时 */
-.countdown { font-size:12px; color:var(--red); font-weight:700; margin-bottom:6px; animation:blink 1s infinite; }
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.5} }
+/* RESULT OVERLAY */
+.result-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5);
+  z-index: 180; align-items: center; justify-content: center;
+}
+.result-overlay.show { display: flex; }
+.result-card {
+  background: #fff; border-radius: 16px; padding: 20px; text-align: center;
+  width: 260px; box-shadow: 0 8px 30px rgba(0,0,0,.15);
+}
+.result-card .qr { width: 160px; height: 160px; margin: 0 auto 8px; background: #f8f8f8; border-radius: 8px; }
+.result-card .big-num { font-size: 44px; font-weight: 800; color: #B22222; line-height: 1.1; }
+.result-card .big-type { font-size: 13px; color: #999; margin: 2px 0; }
+.result-card .big-time { font-size: 12px; color: #aaa; margin-bottom: 10px; }
+.result-card .close-btn {
+  padding: 6px 20px; border-radius: 8px; border: none; background: #B22222;
+  color: #fff; font-size: 13px; cursor: pointer;
+}
+.screenshot-hint { font-size: 10px; color: #B22222; margin-top: 4px; }
 
-/* 卡片按钮 */
-.queue-actions { display:flex; gap:6px; flex-wrap:wrap; margin-top:4px; }
-.queue-actions button {
-  flex:1; min-width:50px; padding:6px 4px; font-size:11px; border:none; border-radius:6px;
-  font-weight:600; cursor:pointer; font-family:inherit; transition:all .15s;
-}
-.btn-call { background:linear-gradient(135deg,#FFC107,#FF9800); color:#fff; }
-.btn-call:hover { background:linear-gradient(135deg,#FFB300,#F57C00); transform:translateY(-1px); }
-.btn-seat { background:var(--green); color:#fff; }
-.btn-seat:hover { opacity:.85; transform:translateY(-1px); }
-.btn-skip { background:var(--red-bg); color:var(--red); }
-.btn-skip:hover { background:var(--red); color:#fff; }
-.btn-cancel { background:#f5f5f5; color:var(--text-light); }
-.btn-cancel:hover { background:#e0e0e0; }
-.btn-reprint { background:var(--blue-bg); color:var(--blue); font-size:10px; }
-.btn-reprint:hover { background:var(--blue); color:#fff; }
-
-/* ── 弹窗 ── */
-.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:200; align-items:center; justify-content:center; }
-.modal-overlay.show { display:flex; }
-.modal {
-  background:#fff; border-radius:16px; padding:28px 30px; width:480px; max-width:92vw;
-  box-shadow:0 20px 60px rgba(0,0,0,0.2); animation:slideUp .25s ease;
-  max-height:90vh; overflow-y:auto;
-}
-@keyframes slideUp { from{transform:translateY(30px);opacity:0} to{transform:translateY(0);opacity:1} }
-.modal h2 { font-size:20px; margin-bottom:16px; }
-.form-group { margin-bottom:16px; }
-.form-group label { display:block; font-size:13px; font-weight:600; color:var(--text); margin-bottom:6px; }
-.form-group label .req { color:var(--primary); margin-left:2px; }
-.form-group input,.form-group select,.form-group textarea {
-  width:100%; padding:10px 14px; border:2px solid #e8e8e8; border-radius:8px;
-  font-size:15px; font-family:inherit; outline:none; transition:.2s; background:#fafafa;
-}
-.form-group textarea { resize:vertical; min-height:60px; }
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus { border-color:var(--primary); background:#fff; }
-.form-row { display:flex; gap:12px; }
-.form-row .form-group { flex:1; }
-.modal-actions { display:flex; gap:10px; margin-top:24px; }
-.btn {
-  flex:1; padding:12px; border-radius:8px; font-size:15px;
-  font-weight:600; cursor:pointer; border:none; transition:.2s; font-family:inherit;
-}
-.btn-primary { background:linear-gradient(135deg,var(--primary),#D4443F); color:#fff; box-shadow:0 4px 12px rgba(178,34,34,0.3); }
-.btn-primary:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(178,34,34,0.4); }
-.btn-secondary { background:#f5f5f5; color:var(--text); }
-.btn-secondary:hover { background:#e8e8e8; }
-
-/* ── 底部记录表格 ── */
-.tab-bar { display:flex; gap:6px; margin-bottom:12px; }
-.tab-btn {
-  padding:8px 18px; border:1px solid #ddd; border-radius:8px; background:#fff;
-  cursor:pointer; font-size:13px; font-family:inherit; font-weight:600; transition:.2s;
-}
-.tab-btn.active { background:var(--primary); color:#fff; border-color:var(--primary); }
-.tab-btn:hover:not(.active) { border-color:var(--primary); color:var(--primary); }
-.queue-table { width:100%; border-collapse:collapse; background:#fff; border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow); }
-.queue-table th { background:var(--primary); color:#fff; padding:10px 12px; font-size:13px; text-align:left; white-space:nowrap; }
-.queue-table td { padding:10px 12px; font-size:13px; border-bottom:1px solid #f0f0f0; }
-.queue-table tr:hover { background:#fdf6f0; }
-.queue-table tr.row-today { }
-.queue-table tr.row-past td { color:#bbb; }
-.action-link { color:var(--red); cursor:pointer; font-size:12px; font-weight:600; }
-.action-link:hover { text-decoration:underline; }
-.no-data { text-align:center; padding:40px; color:var(--text-light); font-size:14px; }
-
-/* ── Toast ── */
+/* TOAST */
 .toast {
-  position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:999;
-  background:#333; color:#fff; padding:10px 24px; border-radius:8px; font-size:14px;
-  opacity:0; transition:opacity .3s; pointer-events:none;
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: #333; color: #fff; padding: 8px 20px; border-radius: 20px;
+  font-size: 13px; z-index: 999; opacity: 0; transition: opacity .3s;
+  pointer-events: none;
 }
-.toast.show { opacity:1; }
-.toast.error { background:var(--red); }
+.toast.show { opacity: 1; }
 
-/* ── 空状态 ── */
-.empty-queue {
-  text-align:center; padding:60px 20px; color:var(--text-light);
-}
-.empty-queue .empty-icon { font-size:64px; margin-bottom:16px; opacity:.5; }
-.empty-queue p { font-size:15px; }
-
-/* ── 快速取号栏 ── */
-.quick-take {
-  background: #fff; border-bottom: 1px solid #f0f0f0;
-  padding: 10px 24px; position: sticky; top: 0; z-index: 50;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-}
-.quick-take-inner {
-  max-width: 1400px; margin: 0 auto; display: flex;
-  align-items: center; gap: 10px; flex-wrap: wrap;
-}
-.quick-label { font-weight: 700; font-size: 14px; color: var(--primary); white-space: nowrap; }
-.quick-type {
-  padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 700;
-  background: var(--orange-bg); color: var(--orange); white-space: nowrap;
-}
-.quick-input {
-  padding: 8px 12px; border: 2px solid #e8e8e8; border-radius: 8px;
-  font-size: 14px; font-family: inherit; outline: none; background: #fafafa;
-  transition: .2s;
-}
-.quick-input:focus { border-color: var(--primary); background: #fff; }
-.quick-input { width: 80px; }
-.quick-input.note { width: 140px; }
-.quick-btn { flex: 0 0 auto; padding: 8px 24px !important; font-size: 14px !important; }
-
-/* ── 三列排队区 ── */
-.queue-cols {
-  display: flex; gap: 16px; align-items: flex-start;
-}
-@media(max-width:900px) { .queue-cols { flex-direction: column; } }
-.queue-col {
-  flex: 1; min-width: 0;
-  background: #fafafa; border-radius: var(--radius); padding: 12px;
-}
-.queue-col .section-title { margin-bottom: 10px; font-size: 14px; }
-.queue-list { display: flex; flex-direction: column; gap: 8px; }
-
-/* ── 列内卡片（紧凑版）── */
-.queue-col .queue-card { padding: 10px 12px; }
-.queue-col .queue-card::before { height: 3px; }
-.queue-col .queue-number { font-size: 24px; }
-.queue-col .queue-info { font-size: 12px; line-height: 1.6; }
-.queue-col .queue-actions button { font-size: 10px; padding: 5px 3px; }
-.empty-slot {
-  text-align: center; padding: 20px; color: var(--text-light); font-size: 13px;
-  border: 2px dashed #e0e0e0; border-radius: var(--radius);
-}
-.stats-bar {
-  display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap;
-}
-.stat-card {
-  background:var(--card-bg); border-radius:var(--radius); padding:14px 20px;
-  box-shadow:var(--shadow); flex:1; min-width:120px; text-align:center;
-}
-.stat-card .stat-num { font-size:28px; font-weight:900; }
-.stat-card .stat-label { font-size:12px; color:var(--text-light); margin-top:4px; }
-.stat-card.waiting .stat-num { color:var(--green); }
-.stat-card.called .stat-num { color:#F57F17; }
-.stat-card.seated .stat-num { color:var(--blue); }
-
-/* ── 移动端优化 ── */
-@media (max-width: 680px) {
-  .header { padding:10px 14px; }
-  .header-logo-icon { font-size:28px; }
-  .header-store { font-size:14px; letter-spacing:1px; }
-  .header-subtitle { font-size:10px; }
-  .header-right { gap:6px; }
-  .store-select { font-size:12px; padding:6px 8px; max-width:120px; }
-  .date-picker { font-size:12px; padding:6px 8px; width:110px; }
-  .header-btn { font-size:11px; padding:5px 8px; }
-  .main { padding:16px 10px; }
-  .section-title { font-size:15px; }
-  .queue-number { font-size:26px; }
-  .queue-card { padding:12px 10px; }
-  .modal { width:100%; max-width:100%; height:100%; max-height:100vh; border-radius:0; padding:20px 16px; }
-  .queue-grid { grid-template-columns:repeat(2,1fr); gap:8px; }
+/* Responsive */
+@media(min-width:768px) {
+  .people-row button { min-width: 42px; height: 42px; font-size: 17px; }
+  .queue-num { font-size: 32px; }
+  .main-scroll { max-width: 600px; margin: 0 auto; }
 }
 </style>
 </head>
 <body>
 
-<!-- ── 登录页 ── -->
-<div class="login-overlay" id="loginOverlay">
-  <div class="login-box">
-    <div class="logo-icon">🍜</div>
-    <h2>等位叫号系统</h2>
-    <div class="sub">请输入账号密码登录</div>
-    <input type="text" id="loginUsername" placeholder="用户名" autocomplete="username">
-    <input type="password" id="loginPassword" placeholder="密码" autocomplete="current-password">
-    <button class="btn-login" onclick="doLogin()">登 录</button>
-    <div class="login-hint">默认账号: xgll2122 / 2122</div>
-  </div>
-</div>
-
-<!-- ── Header ── -->
+<!-- Header -->
 <div class="header">
-  <div class="header-brand">
-    <span class="header-logo-icon">🍜</span>
-    <div class="header-title">
-      <div class="header-store" id="storeNameDisplay">湘阁里辣</div>
-      <div class="header-subtitle">等位·拿号·叫号</div>
-    </div>
+  <div>
+    <h1>湘阁里辣 · 等位</h1>
+    <div class="sub" id="storeLabel">加载中...</div>
   </div>
-  <div class="header-right">
-    <select class="store-select" id="storeSelect" onchange="onStoreChange()"></select>
-    <input type="date" class="date-picker" id="datePicker">
-    <span class="status-badge"><span class="dot live"></span> <span id="liveClock">--:--</span></span>
-    <button class="header-btn" onclick="exportCSV()">📥 导出</button>
-    <button class="header-btn" onclick="doLogout()">退出</button>
+  <div class="btns">
+    <button onclick="showSettings()" title="设置">⚙️</button>
+    <button onclick="toggleView()" id="viewBtn" title="切换视图">🔀</button>
   </div>
 </div>
 
-<!-- ── 快速取号栏 ── -->
-<div class="quick-take" id="quickTake">
-  <div class="quick-take-inner">
-    <span class="quick-label">📝 现场取号</span>
-    <input type="number" id="quickPeople" class="quick-input" placeholder="人数" min="1" max="99" value="2" oninput="updateTakeType()">
-    <span class="quick-type" id="quickType">B区</span>
-    <input type="tel" id="quickPhone" class="quick-input" placeholder="手机号(选填)" maxlength="11">
-    <input type="text" id="quickNote" class="quick-input note" placeholder="备注(选填)" maxlength="30">
-    <button class="btn btn-primary quick-btn" onclick="quickTake()">取号</button>
+<!-- Quick Take -->
+<div class="quick-take">
+  <div class="label">👇 点人数直接取号</div>
+  <div class="people-row" id="peopleRow">
+    <!-- JS生成1-10按钮 -->
   </div>
 </div>
 
-<!-- ── Main ── -->
-<div class="main">
-  <!-- 统计栏 -->
-  <div class="stats-bar" id="statsBar">
-    <div class="stat-card waiting"><div class="stat-num" id="statWaiting">0</div><div class="stat-label">⏳ 等位中</div></div>
-    <div class="stat-card called"><div class="stat-num" id="statCalled">0</div><div class="stat-label">🔔 已叫号</div></div>
-    <div class="stat-card seated"><div class="stat-num" id="statSeated">0</div><div class="stat-label">✅ 已入座</div></div>
+<!-- Main Scroll -->
+<div class="main-scroll" id="mainScroll">
+  <!-- 等位中 -->
+  <div class="section">
+    <div class="section-title">🟢 等位中</div>
+    <div id="waitingList"></div>
   </div>
 
-  <!-- 三列排队区 -->
-  <div class="queue-cols" id="queueCols">
-    <div class="queue-col" id="queueColA">
-      <div class="section-title">👤 A区 <span class="section-badge a">1人</span></div>
-      <div class="queue-list" id="queueListA">
-        <div class="empty-slot">📭 暂无</div>
-      </div>
-    </div>
-    <div class="queue-col" id="queueColB">
-      <div class="section-title">👥 B区 <span class="section-badge b">2-4人</span></div>
-      <div class="queue-list" id="queueListB">
-        <div class="empty-slot">📭 暂无</div>
-      </div>
-    </div>
-    <div class="queue-col" id="queueColC">
-      <div class="section-title">👨‍👩‍👧‍👦 C区 <span class="section-badge c">5人+</span></div>
-      <div class="queue-list" id="queueListC">
-        <div class="empty-slot">📭 暂无</div>
-      </div>
-    </div>
+  <!-- 过号（可收起） -->
+  <div class="section" id="skippedSection" style="display:none">
+    <div class="section-title">⏭️ 已过号</div>
+    <div id="skippedList"></div>
   </div>
 
-  <!-- 底部记录表格 -->
-  <div style="margin-top:32px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-      <div class="tab-bar">
-        <button class="tab-btn active" onclick="switchTab('today')">📋 今日排队</button>
-        <button class="tab-btn" onclick="switchTab('history')">📦 历史记录</button>
-      </div>
-    </div>
+  <!-- 今日记录 -->
+  <div class="section history">
+    <div class="section-title">📋 今日记录</div>
     <div style="overflow-x:auto;">
-      <table class="queue-table" id="queueTable">
-        <thead><tr>
-          <th id="thStore" style="display:none">门店</th>
-          <th>号数</th><th>类型</th><th>姓名</th><th>手机</th><th>人数</th>
-          <th>备注</th><th>状态</th><th>取号人</th><th>时间</th><th>操作</th>
-        </tr></thead>
-        <tbody id="queueTableBody">
-          <tr><td colspan="10" class="no-data">暂无记录</td></tr>
-        </tbody>
+      <table>
+        <thead><tr><th>号数</th><th>人数</th><th>状态</th><th>操作</th></tr></thead>
+        <tbody id="historyBody"></tbody>
       </table>
     </div>
+  </div>
+</div>
+
+<!-- Settings -->
+<div class="modal-overlay" id="settingsOverlay" onclick="if(event.target===this)closeSettings()">
+  <div class="modal-box">
+    <h3>⚙️ 叫号设置</h3>
+    <label>叫号语音文字（{{number}}=号数 {{type}}=区号）</label>
+    <input type="text" id="callText" placeholder="{{type}}，{{number}}号，请到前台就餐">
+    <label>语速: <span id="rateLabel">0.9</span></label>
+    <input type="range" id="speechRate" min="0.5" max="2.0" step="0.1" value="0.9" oninput="document.getElementById('rateLabel').textContent=this.value">
+    <div class="modal-toggle">
+      <span>取号后显示二维码</span>
+      <input type="checkbox" id="showQrToggle" checked>
+    </div>
+    <div class="modal-toggle">
+      <span>取号后自动打印</span>
+      <input type="checkbox" id="autoPrintToggle">
+    </div>
+    <button class="modal-btn" onclick="saveSettings()">💾 保存设置</button>
+  </div>
+</div>
+
+<!-- Result overlay -->
+<div class="result-overlay" id="resultOverlay" onclick="if(event.target===this)closeResult()">
+  <div class="result-card">
+    <img class="qr" id="qrImg" src="" alt="QR">
+    <div class="big-num" id="resultNum"></div>
+    <div class="big-type" id="resultType"></div>
+    <div class="big-time" id="resultTime"></div>
+    <div class="screenshot-hint">📸 请截图保存</div>
+    <button class="close-btn" onclick="closeResult()">关闭</button>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// ── 全局状态 ──
-let state = {
-  token: '', user: null, store: 'dalang', storeName: '', isAdmin: false,
-  date: '', queue: [], queueA: [], queueB: [], history: { recent: [], archived: [] },
-  currentTab: 'today', stores: []
-};
+// ── 状态 ──
+const S = { token:'', store:'', storeName:'', queues:[], settings:{}, viewMode:'default' };
 
 // ── 初始化 ──
-document.addEventListener('DOMContentLoaded', () => {
-  const nd = new Date();
-  state.date = `${nd.getFullYear()}-${String(nd.getMonth()+1).padStart(2,'0')}-${String(nd.getDate()).padStart(2,'0')}`;
-  document.getElementById('datePicker').value = state.date;
-  document.getElementById('datePicker').addEventListener('change', () => {
-    state.date = document.getElementById('datePicker').value;
-    loadAll();
-  });
-
-  // 尝试恢复登录
-  const saved = localStorage.getItem('queue_auth');
-  if (saved) {
-    try {
-      const auth = JSON.parse(saved);
-      state.token = auth.token; state.user = auth.username;
-      state.store = auth.store; state.storeName = auth.storeName;
-      state.isAdmin = auth.role === 'admin';
-      hideLogin();
-      initApp();
-    } catch { showLogin(); }
-  }
-
-  // 实时时钟
-  updateClock();
-  setInterval(updateClock, 10000);
+document.addEventListener('DOMContentLoaded', async () => {
+  genPeopleBtns();
+  loadSettingsLocal();
+  await autoLogin();
+  connectSSE();
+  await loadAll();
+  setInterval(updateWaitTimes, 5000);
 });
 
-function updateClock() {
-  const now = new Date();
-  document.getElementById('liveClock').textContent =
-    String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+function genPeopleBtns() {
+  const row = document.getElementById('peopleRow');
+  let html = '';
+  for (let i = 1; i <= 10; i++) html += `<button onclick="takeNumber(${i})">${i}</button>`;
+  html += '<input type="number" id="bigPeople" placeholder="10+" min="11" max="99" onkeydown="if(event.key===\'Enter\')takeNumber(parseInt(this.value))">';
+  row.innerHTML = html;
 }
 
 // ── 登录 ──
-function showLogin() { document.getElementById('loginOverlay').classList.remove('hidden'); }
-function hideLogin() { document.getElementById('loginOverlay').classList.add('hidden'); }
-
-async function doLogin() {
-  const u = document.getElementById('loginUsername').value.trim();
-  const p = document.getElementById('loginPassword').value.trim();
-  if (!u || !p) { toast('请输入用户名和密码', 'error'); return; }
+async function autoLogin() {
   try {
-    const r = await fetch('/api/login', {
-      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:u,password:p})
-    });
+    const r = await fetch('/api/login', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:'xgll2122',password:'2122'}) });
     const d = await r.json();
-    if (!r.ok) { toast(d.error || '登录失败', 'error'); return; }
-    state.token = d.token; state.user = d.username;
-    state.store = d.store; state.storeName = d.storeName;
-    state.isAdmin = d.role === 'admin';
-    localStorage.setItem('queue_auth', JSON.stringify(d));
-    hideLogin();
-    initApp();
-    toast(`欢迎，${d.storeName}`);
-  } catch(e) { toast('登录失败: ' + e.message, 'error'); }
-}
-
-function doLogout() {
-  localStorage.removeItem('queue_auth');
-  state.token = ''; state.user = null; state.store = 'dalang'; state.isAdmin = false;
-  showLogin();
-}
-
-// ── 初始化应用 ──
-async function initApp() {
-  document.getElementById('storeNameDisplay').textContent = state.storeName || '湘阁里辣';
-  try {
-    const r = await fetch('/api/me', { headers: { 'Authorization': 'Bearer ' + state.token } });
-    if (!r.ok) throw new Error('auth');
-    const d = await r.json();
-    state.store = d.store; state.storeName = d.storeName; state.isAdmin = d.role === 'admin';
-    document.getElementById('storeNameDisplay').textContent = state.storeName;
-  } catch(e) { toast('登录验证失败', 'error'); doLogout(); return; }
-
-  await loadStores();
-  loadAll();
-  connectSSE();
-}
-
-async function loadStores() {
-  try {
-    const r = await fetch('/api/stores');
-    state.stores = await r.json();
-    const sel = document.getElementById('storeSelect');
-    sel.innerHTML = state.stores.map(s => `<option value="${s.id}" ${s.id===state.store?'selected':''}>${s.name}</option>`).join('');
-    if (state.isAdmin) {
-      sel.innerHTML = '<option value="all">🌐 全部门店</option>' + sel.innerHTML;
-      if (!state.stores.find(s=>s.id===state.store)) sel.value = 'all';
-    }
-  } catch(e) { console.error('loadStores:', e); }
-}
-
-function onStoreChange() {
-  const v = document.getElementById('storeSelect').value;
-  state.store = v === 'all' ? state.store : v;
-  loadAll();
-}
-
-// ── 加载数据 ──
-async function loadAll() {
-  if (state.isAdmin) {
-    try {
-      const r = await fetch(`/api/admin/queue/unified?date=${state.date}`, {
-        headers: { 'Authorization': 'Bearer ' + state.token }
-      });
-      if (!r.ok) throw new Error('auth');
-      const storesData = await r.json();
-      state.queue = [];
-      for (const s of storesData) {
-        for (const q of (s.queue || [])) state.queue.push({ ...q, _storeName: s.name, _storeId: s.id });
-      }
-      document.getElementById('thStore').style.display = '';
-    } catch(e) { state.queue = []; }
-  } else {
-    try {
-      const r = await fetch(`/api/store/${state.store}/queue?date=${state.date}`, {
-        headers: { 'Authorization': 'Bearer ' + state.token }
-      });
-      if (!r.ok) throw new Error('auth');
-      state.queue = await r.json();
-      document.getElementById('thStore').style.display = 'none';
-    } catch(e) { state.queue = []; }
-  }
-
-  state.queueA = state.queue.filter(q => q.type === 'A');
-  state.queueB = state.queue.filter(q => q.type === 'B');
-  renderAll();
-  loadHistory();
-}
-
-async function loadHistory() {
-  try {
-    const sid = state.store === 'all' ? (state.stores[0]?.id || 'dalang') : state.store;
-    const r = await fetch(`/api/store/${sid}/queue/history`, {
-      headers: { 'Authorization': 'Bearer ' + state.token }
-    });
-    state.history = await r.json();
-  } catch { state.history = { recent: [], archived: [] }; }
-  renderTable();
+    S.token = d.token; S.store = d.store; S.storeName = d.storeName;
+    document.getElementById('storeLabel').textContent = d.storeName;
+  } catch(e) { document.getElementById('storeLabel').textContent = '❌ 连接失败'; }
 }
 
 // ── SSE ──
 function connectSSE() {
-  const evt = new EventSource('/api/events');
-  evt.addEventListener('queue_update', e => {
-    const d = JSON.parse(e.data);
-    if (!state.isAdmin && d.storeId !== state.store) return;
-    if (state.isAdmin && d.storeId && document.getElementById('storeSelect').value !== 'all' && d.storeId !== state.store) return;
-    loadAll();
+  const es = new EventSource('/api/events');
+  es.addEventListener('queue_update', e => {
+    try {
+      const d = JSON.parse(e.data);
+      if (d.storeId !== S.store) return;
+      loadAll();
+    } catch(_) {}
   });
-  evt.onerror = () => { evt.close(); setTimeout(connectSSE, 5000); };
+  es.onerror = () => { es.close(); setTimeout(connectSSE, 5000); };
 }
 
-// 🎙 语音叫号（重复5次，由用户点击触发）
-function speakNumber(record) {
-  if (!window.speechSynthesis) return;
-  const typeLabel = { A: 'A区1人', B: 'B区2到4人', C: 'C区5人以上' }[record.type] || '';
-  const text = `${typeLabel}，${record.queue_number}号，请到前台就餐`;
-  function utter(i) {
-    if (i >= 5) return;
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = 'zh-CN';
-    u.rate = 0.9;
-    u.pitch = 1.1;
-    u.volume = 1;
-    u.onend = () => utter(i + 1);
-    window.speechSynthesis.speak(u);
-  }
-  window.speechSynthesis.cancel();
-  utter(0);
+// ── 数据加载 ──
+async function loadAll() {
+  try {
+    const r = await fetch(`/api/store/${S.store}/queue`, { headers:{'Authorization':'Bearer '+S.token} });
+    if (!r.ok) return;
+    S.queues = await r.json();
+    render();
+  } catch(_) {}
 }
 
 // ── 渲染 ──
-function renderAll() {
-  renderQueueGroup('queueListA', state.queueA, 'A');
-  renderQueueGroup('queueListB', state.queueB, 'B');
-  renderQueueGroup('queueListC', state.queueC, 'C');
-  updateStats();
-  renderTable();
+function render() {
+  renderWaiting();
+  renderSkipped();
+  renderHistory();
 }
 
-function renderQueueGroup(gridId, items, type) {
-  const grid = document.getElementById(gridId);
-  const typeNames = { A: '1人', B: '2-4人', C: '5人以上' };
-  if (!items.length) {
-    grid.innerHTML = '<div class="empty-queue"><div class="empty-icon">📭</div><p>暂无排队</p></div>';
-    return;
-  }
-
-  grid.innerHTML = items.map(q => {
-    const statusMap = { waiting: '等位中', called: '已叫号', seated: '已入座', skipped: '已过号', cancelled: '已取消' };
-    const status = q.status;
-    const isActive = status === 'waiting' || status === 'called';
-    const storeLabel = state.isAdmin && q._storeName ? `<div style="font-size:10px;color:var(--text-light);margin-bottom:4px;">${q._storeName}</div>` : '';
-
-    // 倒计时（仅 called 状态）
-    let countdownHtml = '';
-    if (status === 'called' && q.called_at) {
-      countdownHtml = `<div class="countdown" data-called="${q.called_at}">⏱ 等待入座中...</div>`;
-    }
-
-    // 按钮
-    let actionsHtml = '';
-    if (status === 'waiting') {
-      actionsHtml = `
-        <button class="btn-call" onclick="callQueue('${q.id}', '${q.store_id || state.store}')">📣 叫号</button>
-        <button class="btn-cancel" onclick="cancelQueue('${q.id}', '${q.store_id || state.store}')">取消</button>
-      `;
-    } else if (status === 'called') {
-      actionsHtml = `
-        <button class="btn-seat" onclick="seatQueue('${q.id}', '${q.store_id || state.store}')">✅ 入座</button>
-        <button class="btn-skip" onclick="skipQueue('${q.id}', '${q.store_id || state.store}')">过号</button>
-      `;
-    }
-    actionsHtml += `<button class="btn-reprint" onclick="reprintTicket('${q.id}')">🖨 重打</button>`;
-
-    return `<div class="queue-card type-${type.toLowerCase()} status-${status}">
-      ${storeLabel}
-      <span class="queue-type-tag ${type.toLowerCase()}">${typeNames[type]}</span>
-      <div class="queue-number ${type.toLowerCase()}">${q.queue_number}</div>
-      ${countdownHtml}
-      <span class="queue-status-tag ${status}">${statusMap[status]}</span>
+function renderWaiting() {
+  const items = S.queues.filter(q => q.status === 'waiting');
+  const list = document.getElementById('waitingList');
+  if (!items.length) { list.innerHTML = '<div class="empty-hint">📭 暂无排队</div>'; return; }
+  list.innerHTML = items.map(q => `
+    <div class="queue-item">
+      <div class="queue-num">${q.queue_number}</div>
       <div class="queue-info">
-        <strong>${q.name}</strong> · ${q.people}人<br>
-        ${q.phone ? '📞 ' + q.phone : ''}
-        ${q.note ? '<br>💬 ' + q.note : ''}
-        ${isActive ? '<br><span class="wait-time" data-created="' + q.created_at + '">⏱ 排队中...</span>' : ''}
+        <div class="ppl">${q.people}人${q.phone?' <span class="phone">📞'+q.phone+'</span>':''}</div>
+        <div class="wait" data-ts="${q.created_at}">⏱ 排队中...</div>
       </div>
-      ${isActive ? `<div class="queue-actions">${actionsHtml}</div>` : ''}
-    </div>`;
-  }).join('');
-
-  // 启动倒计时更新
-  updateCountdowns();
-}
-
-function updateStats() {
-  document.getElementById('statWaiting').textContent = state.queue.filter(q => q.status === 'waiting').length;
-  document.getElementById('statCalled').textContent = state.queue.filter(q => q.status === 'called').length;
-  document.getElementById('statSeated').textContent = state.queue.filter(q => q.status === 'seated').length;
-}
-
-// ── 倒计时 & 等待时间更新 ──
-function updateCountdowns() {
-  const now = Date.now();
-  // 叫号超时倒计时
-  document.querySelectorAll('.countdown').forEach(el => {
-    const calledAt = new Date(el.dataset.called).getTime();
-    const elapsed = Math.floor((now - calledAt) / 1000);
-    const remaining = 180 - elapsed;
-    if (remaining <= 0) {
-      el.textContent = '⏰ 已超时!';
-      el.style.color = 'var(--red)';
-    } else {
-      const m = Math.floor(remaining / 60);
-      const s = remaining % 60;
-      el.textContent = `⏱ 剩余 ${m}:${String(s).padStart(2,'0')}`;
-    }
-  });
-  // 等位中已排队时间
-  document.querySelectorAll('.wait-time').forEach(el => {
-    const created = new Date(el.dataset.created).getTime();
-    const elapsed = Math.floor((now - created) / 1000);
-    const m = Math.floor(elapsed / 60);
-    if (m < 1) el.textContent = '⏱ 刚刚取号';
-    else if (m < 60) el.textContent = '⏱ 已排队 ' + m + ' 分钟';
-    else {
-      const h = Math.floor(m / 60);
-      const rm = m % 60;
-      el.textContent = '⏱ 已排队 ' + h + '小时' + rm + '分钟';
-    }
-  });
-}
-setInterval(updateCountdowns, 5000);
-
-// ── 表格渲染 ──
-function renderTable() {
-  const tbody = document.getElementById('queueTableBody');
-  const isToday = state.currentTab === 'today';
-
-  let list;
-  if (isToday) {
-    list = state.queue;
-  } else {
-    list = [...(state.history.recent || []), ...(state.history.archived || [])];
-  }
-
-  if (!list || !list.length) {
-    tbody.innerHTML = '<tr><td colspan="11" class="no-data">暂无记录</td></tr>';
-    return;
-  }
-
-  const statusMap = { waiting: '等位中', called: '已叫号', seated: '已入座', skipped: '已过号', cancelled: '已取消' };
-  const typeMap = { A: 'A区(1人)', B: 'B区(2-4人)', C: 'C区(5人+)' };
-
-  tbody.innerHTML = list.map(q => {
-    const storeCol = state.isAdmin ? `<td>${q._storeName || ''}</td>` : '';
-    const d = new Date(q.created_at);
-    const timeStr = d.toLocaleTimeString('zh-CN', { hour12: false });
-    const isPast = q.status === 'seated' || q.status === 'skipped' || q.status === 'cancelled';
-    const rowClass = isToday ? '' : 'row-past';
-    return `<tr class="${rowClass}">
-      ${storeCol}
-      <td><strong>${q.queue_number}</strong></td>
-      <td>${typeMap[q.type] || q.type}</td>
-      <td>${q.name}</td>
-      <td>${q.phone || '-'}</td>
-      <td>${q.people}人</td>
-      <td>${q.note || '-'}</td>
-      <td><span class="queue-status-tag ${q.status}">${statusMap[q.status] || q.status}</span></td>
-      <td>${q.created_by === 'scan' ? '顾客扫码' : (q.created_by || '-')}</td>
-      <td>${timeStr}</td>
-      ${isToday && (q.status==='waiting'||q.status==='called') ?
-        `<td><span class="action-link" onclick="cancelQueue('${q.id}','${q.store_id||state.store}')">取消</span></td>` :
-        '<td>-</td>'}
-    </tr>`;
-  }).join('');
-
-  // 隐藏/显示门店列
-  document.getElementById('thStore').style.display = state.isAdmin ? '' : 'none';
-}
-
-function switchTab(tab) {
-  state.currentTab = tab;
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.textContent.includes(tab==='today'?'今日':'历史')));
-  renderTable();
-}
-
-// ── 快速取号（内联）──
-function updateTakeType() {
-  const p = parseInt(document.getElementById('quickPeople').value) || 1;
-  let label, color;
-  if (p === 1) { label = 'A区'; color = 'var(--blue)'; }
-  else if (p <= 4) { label = 'B区'; color = 'var(--orange)'; }
-  else { label = 'C区'; color = 'var(--purple)'; }
-  const el = document.getElementById('quickType');
-  el.textContent = label;
-  el.style.color = color;
-  el.style.borderColor = color;
-}
-
-async function quickTake() {
-  const people = parseInt(document.getElementById('quickPeople').value) || 1;
-  const phone = document.getElementById('quickPhone').value.trim();
-  const note = document.getElementById('quickNote').value.trim();
-
-  try {
-    const r = await fetch(`/api/store/${state.store}/queue`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + state.token },
-      body: JSON.stringify({ name: '顾客', phone, people, note })
-    });
-    const d = await r.json();
-    if (!r.ok) { toast(d.error || '取号失败', 'error'); return; }
-
-    toast(`取号成功: ${d.queue_number}`);
-    loadAll();
-    autoPrintTicket(d);
-    // 清空
-    document.getElementById('quickPhone').value = '';
-    document.getElementById('quickNote').value = '';
-    document.getElementById('quickPeople').value = '2';
-    updateTakeType();
-  } catch(e) { toast('取号失败: ' + e.message, 'error'); }
-}
-
-// ── 队列操作 ──
-async function callQueue(id, storeId) {
-  if (!confirm('确认叫号？将发送短信和企微通知')) return;
-  try {
-    const r = await fetch(`/api/store/${storeId}/queue/${id}/call`, {
-      method: 'POST', headers: { 'Authorization': 'Bearer ' + state.token }
-    });
-    const d = await r.json();
-    if (r.ok) {
-      toast(`叫号: ${d.queue_number}`);
-      speakNumber(d); // 🎙 语音叫号5遍
-    }
-    else toast(d.error || '操作失败', 'error');
-  } catch(e) { toast('操作失败', 'error'); }
-}
-
-async function seatQueue(id, storeId) {
-  if (!confirm('确认入座？')) return;
-  try {
-    const r = await fetch(`/api/store/${storeId}/queue/${id}/seat`, {
-      method: 'POST', headers: { 'Authorization': 'Bearer ' + state.token }
-    });
-    const d = await r.json();
-    if (r.ok) toast(`已入座: ${d.queue_number}`);
-    else toast(d.error || '操作失败', 'error');
-  } catch(e) { toast('操作失败', 'error'); }
-}
-
-async function skipQueue(id, storeId) {
-  if (!confirm('确认标记为过号？')) return;
-  try {
-    const r = await fetch(`/api/store/${storeId}/queue/${id}/skip`, {
-      method: 'POST', headers: { 'Authorization': 'Bearer ' + state.token }
-    });
-    const d = await r.json();
-    if (r.ok) toast(`已过号: ${d.queue_number}`);
-    else toast(d.error || '操作失败', 'error');
-  } catch(e) { toast('操作失败', 'error'); }
-}
-
-async function cancelQueue(id, storeId) {
-  if (!confirm('确认取消此排队？')) return;
-  try {
-    const r = await fetch(`/api/store/${storeId}/queue/${id}/cancel`, {
-      method: 'POST', headers: { 'Authorization': 'Bearer ' + state.token }
-    });
-    if (r.ok) toast('已取消');
-    else { const d = await r.json(); toast(d.error || '操作失败', 'error'); }
-  } catch(e) { toast('操作失败', 'error'); }
-}
-
-// ── 导出 ──
-async function exportCSV() {
-  const endpoint = state.isAdmin ? '/api/admin/queue/export' : `/api/store/${state.store}/queue/export`;
-  window.open(endpoint + '?t=' + Date.now(), '_blank');
-}
-
-// ── 蓝牙打印 ──
-async function autoPrintTicket(record) {
-  try {
-    await printTicket(record);
-  } catch(e) { console.log('自动打印跳过:', e.message); }
-}
-
-async function reprintTicket(id) {
-  const record = state.queue.find(q => q.id === id);
-  if (!record) { toast('记录不存在', 'error'); return; }
-  try {
-    await printTicket(record);
-    toast('已发送打印');
-  } catch(e) { toast('打印失败: ' + e.message, 'error'); }
-}
-
-async function printTicket(record) {
-  const now = new Date();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  const hour = String(now.getHours()).padStart(2, '0');
-  const min = String(now.getMinutes()).padStart(2, '0');
-  const sec = String(now.getSeconds()).padStart(2, '0');
-
-  // 58mm 热敏小票模板
-  const ticketHtml = `
-    <div style="font-family:monospace;font-size:10px;width:200px;text-align:center;">
-      <div style="font-size:14px;font-weight:bold;">湘阁里辣</div>
-      <div style="margin:4px 0;">${state.storeName}</div>
-      <div style="border-top:1px dashed #000;margin:4px 0;"></div>
-      <div style="font-size:18px;font-weight:bold;margin:8px 0;">${record.queue_number}</div>
-      <div style="margin:4px 0;">${({A:'A区(1人)',B:'B区(2-4人)',C:'C区(5人以上)'})[record.type] || ''}</div>
-      <div style="border-top:1px dashed #000;margin:4px 0;"></div>
-      <div style="text-align:left;padding:4px 8px;">
-        顾客: ${record.name}<br>
-        人数: ${record.people}人<br>
-        手机: ${record.phone || '未留'}<br>
-        备注: ${record.note || '无'}
+      <div class="queue-acts">
+        <button class="btn-call" onclick="callQueue('${q.id}')">📣 叫号</button>
+        <button class="btn-cnl" onclick="cancelQueue('${q.id}')">撤号</button>
       </div>
-      <div style="border-top:1px dashed #000;margin:4px 0;"></div>
-      <div>取号时间: ${month}-${day} ${hour}:${min}:${sec}</div>
-      <div style="margin:4px 0;">请您耐心等待，留意叫号</div>
-      <div style="margin-top:8px;">过号需重新取号</div>
-      <div style="border-top:1px dashed #000;margin:4px 0;"></div>
-      <div style="font-size:8px;">感谢您的光临</div>
     </div>
-  `;
+  `).join('');
+}
 
-  // 尝试网页蓝牙打印 API
-  if (navigator.bluetooth) {
-    try {
-      // 方案1: 使用 Web Bluetooth API + 热敏打印机服务
-      const device = await navigator.bluetooth.requestDevice({
-        acceptAllDevices: true,
-        optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']
-      });
-      const server = await device.gatt.connect();
-      // ... 具体实现取决于打印机型号
-      toast('蓝牙打印已发送');
-      return;
-    } catch(e) {
-      // 蓝牙不可用，回退到 window.print
+function renderSkipped() {
+  const items = S.queues.filter(q => q.status === 'skipped');
+  const sec = document.getElementById('skippedSection');
+  if (!items.length) { sec.style.display = 'none'; return; }
+  sec.style.display = '';
+  document.getElementById('skippedList').innerHTML = items.map(q => `
+    <div class="queue-item skipped">
+      <div class="queue-num">${q.queue_number}</div>
+      <div class="queue-info"><div class="ppl">${q.people}人</div></div>
+    </div>
+  `).join('');
+}
+
+function renderHistory() {
+  const statusMap = { waiting:'等位中', called:'已叫号', seated:'已入座', skipped:'已过号', cancelled:'已取消' };
+  document.getElementById('historyBody').innerHTML = S.queues.slice().reverse().map(q => `
+    <tr>
+      <td>${q.queue_number}</td>
+      <td>${q.people}人</td>
+      <td>${statusMap[q.status]||q.status}</td>
+      <td>${q.status==='waiting' ? `<button class="row-btn" onclick="cancelQueue('${q.id}')">撤号</button>` : ''}</td>
+    </tr>
+  `).join('');
+}
+
+// ── 取号 ──
+async function takeNumber(people) {
+  if (!people || people < 1) return;
+  try {
+    const r = await fetch(`/api/store/${S.store}/queue`, {
+      method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+S.token},
+      body:JSON.stringify({ people })
+    });
+    const d = await r.json();
+    if (!r.ok) { toast(d.error||'取号失败'); return; }
+
+    if (S.settings.showQr !== false) {
+      showResult(d);
+    } else {
+      toast(`取号成功: ${d.queue_number}号`);
     }
-  }
 
-  // 方案2: 打开打印窗口
-  const printWin = window.open('', '_blank', 'width=250,height=400');
-  if (printWin) {
-    printWin.document.write(ticketHtml);
-    printWin.document.close();
-    setTimeout(() => { printWin.print(); printWin.close(); }, 500);
-  } else {
-    // 方案3: 使用当前窗口的隐藏 iframe 打印
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
-    iframe.contentDocument.write(ticketHtml);
-    iframe.contentDocument.close();
-    setTimeout(() => {
-      iframe.contentWindow.print();
-      setTimeout(() => document.body.removeChild(iframe), 1000);
-    }, 500);
+    if (S.settings.autoPrint) autoPrintTicket(d);
+
+    document.getElementById('bigPeople').value = '';
+    await loadAll();
+  } catch(e) { toast('取号失败'); }
+}
+
+function showResult(record) {
+  const url = `${location.origin}/scan.html?store=${S.store}`;
+  document.getElementById('qrImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(url)}`;
+  document.getElementById('resultNum').textContent = record.queue_number;
+  const typeMap = { A:'A区 · 1人', B:'B区 · 2-4人', C:'C区 · 5人以上' };
+  document.getElementById('resultType').textContent = typeMap[record.type] || '';
+  document.getElementById('resultTime').textContent = '取号: ' + new Date(record.created_at).toLocaleString('zh-CN', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  document.getElementById('resultOverlay').classList.add('show');
+}
+
+function closeResult() { document.getElementById('resultOverlay').classList.remove('show'); }
+
+// ── 叫号 ──
+async function callQueue(id) {
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  try {
+    const r = await fetch(`/api/store/${S.store}/queue/${id}/call`, {
+      method:'POST', headers:{'Authorization':'Bearer '+S.token}
+    });
+    const d = await r.json();
+    if (!r.ok) { toast(d.error||'叫号失败'); return; }
+
+    const typeMap = { A:'A区1人', B:'B区2至4人', C:'C区5人以上' };
+    const tmpl = S.settings.callText || '{{type}}，{{number}}号，请到前台就餐';
+    const text = tmpl.replace('{{type}}', typeMap[d.type]||'').replace('{{number}}', d.queue_number);
+    speakRepeat(text, S.settings.speechRate||0.9);
+
+    await loadAll();
+  } catch(e) { toast('叫号失败'); }
+}
+
+function speakRepeat(text, rate) {
+  if (!window.speechSynthesis) return;
+  function utter(i) {
+    if (i >= 5) return;
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang='zh-CN'; u.rate=parseFloat(rate); u.pitch=1.1; u.volume=1;
+    u.onend = () => utter(i+1);
+    window.speechSynthesis.speak(u);
   }
+  utter(0);
+}
+
+// ── 撤号 ──
+async function cancelQueue(id) {
+  if (!confirm('确认撤销此排队？')) return;
+  try {
+    await fetch(`/api/store/${S.store}/queue/${id}/cancel`, {
+      method:'POST', headers:{'Authorization':'Bearer '+S.token}
+    });
+    await loadAll();
+  } catch(_) {}
+}
+
+// ── 设置 ──
+function loadSettingsLocal() {
+  const d = JSON.parse(localStorage.getItem('qs')||'{}');
+  S.settings = {
+    callText: d.callText || '{{type}}，{{number}}号，请到前台就餐',
+    speechRate: d.speechRate || 0.9,
+    showQr: d.showQr !== false,
+    autoPrint: d.autoPrint === true
+  };
+  document.getElementById('callText').value = S.settings.callText;
+  document.getElementById('speechRate').value = S.settings.speechRate;
+  document.getElementById('rateLabel').textContent = S.settings.speechRate;
+  document.getElementById('showQrToggle').checked = S.settings.showQr;
+  document.getElementById('autoPrintToggle').checked = S.settings.autoPrint;
+}
+
+function showSettings() {
+  loadSettingsLocal();
+  document.getElementById('settingsOverlay').classList.add('show');
+}
+
+function closeSettings() { document.getElementById('settingsOverlay').classList.remove('show'); }
+
+function saveSettings() {
+  S.settings = {
+    callText: document.getElementById('callText').value,
+    speechRate: parseFloat(document.getElementById('speechRate').value),
+    showQr: document.getElementById('showQrToggle').checked,
+    autoPrint: document.getElementById('autoPrintToggle').checked
+  };
+  localStorage.setItem('qs', JSON.stringify(S.settings));
+  closeSettings();
+  toast('✅ 设置已保存');
+}
+
+// ── 视图切换 ──
+function toggleView() {
+  // 暂简化：切换过号栏显隐
+  const sec = document.getElementById('skippedSection');
+  sec.style.display = sec.style.display === 'none' ? '' : 'none';
+}
+
+// ── 等待时间更新 ──
+function updateWaitTimes() {
+  document.querySelectorAll('.wait[data-ts]').forEach(el => {
+    const created = new Date(el.dataset.ts);
+    const min = Math.floor((Date.now() - created) / 60000);
+    el.textContent = `⏱ 已排${min}分钟`;
+  });
 }
 
 // ── Toast ──
-let toastTimer;
-function toast(msg, type) {
+let _t;
+function toast(msg) {
   const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.className = 'toast ' + (type || '') + ' show';
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(_t); _t = setTimeout(() => el.classList.remove('show'), 2000);
 }
+
+// ── 蓝牙打印占位 ──
+function autoPrintTicket(d) { /* 预留 */ }
 </script>
 </body>
 </html>
