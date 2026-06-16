@@ -6,37 +6,50 @@
 <title>湘阁里辣 · 等位凭证</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:linear-gradient(180deg,#B22222 0%,#8B0000 35%,#f5f5f5 35%);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:0 16px}
-.logo{padding:30px 0 20px;color:#fff;text-align:center}
-.logo h1{font-size:20px;font-weight:700}
-.logo .sub{font-size:11px;opacity:.7;margin-top:2px}
-.card{background:#fff;border-radius:16px;padding:24px;width:100%;max-width:340px;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.1)}
-.card .store-name{font-size:13px;color:#999;margin-bottom:8px}
-.card .queue-num{font-size:60px;font-weight:800;color:#B22222;line-height:1.1}
-.card .queue-type{font-size:14px;color:#999;margin:4px 0}
-.card .queue-time{font-size:13px;color:#888;margin-bottom:12px}
-.card .divider{height:1px;background:#eee;margin:12px 0}
-.card .hint{font-size:12px;color:#B22222;font-weight:600}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:linear-gradient(180deg,#B22222 0%,#C62828 40%,#f5f5f5 40%);min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;padding:0 20px}
+.logo-wrap{padding:40px 0 30px;color:#fff;text-align:center}
+.logo-wrap .icon{font-size:44px;display:block;margin-bottom:6px}
+.logo-wrap h1{font-size:26px;font-weight:800;letter-spacing:4px}
+.logo-wrap .sub{font-size:11px;opacity:.65;margin-top:4px;letter-spacing:2px}
+.card{background:#fff;border-radius:18px;padding:36px 28px;width:100%;max-width:360px;text-align:center;box-shadow:0 4px 30px rgba(0,0,0,.08)}
+.card .label{font-size:13px;color:#B22222;font-weight:700;margin-bottom:4px;letter-spacing:2px}
+.card .num{font-size:80px;font-weight:900;color:#B22222;line-height:1;margin:8px 0 4px}
+.card .type-badge{display:inline-block;padding:3px 14px;border-radius:10px;font-size:12px;font-weight:700;margin-bottom:16px}
+.card .type-badge.A{background:#FFF3E0;color:#E65100}
+.card .type-badge.B{background:#E8F5E9;color:#2E7D32}
+.card .type-badge.C{background:#E3F2FD;color:#1565C0}
+.card .time{font-size:14px;color:#666;margin-bottom:18px}
+.card .divider{height:1px;background:linear-gradient(90deg,transparent,#ddd,transparent);margin:16px 0}
+.card .tip{font-size:11px;color:#999;line-height:1.6}
 </style>
 </head>
 <body>
-<div class="logo"><h1>🍜 湘阁里辣</h1><div class="sub">等位叫号凭证</div></div>
+<div class="logo-wrap">
+  <span class="icon">🍜</span>
+  <h1>湘阁里辣</h1>
+  <div class="sub">等 位 凭 证</div>
+</div>
 <div class="card">
-  <div class="store-name" id="sName">--</div>
-  <div class="queue-num" id="qNum">--</div>
-  <div class="queue-type" id="qType">--</div>
-  <div class="queue-time" id="qTime">--</div>
+  <div class="label">等 位 号</div>
+  <div class="num" id="qNum">--</div>
+  <div class="type-badge" id="qTypeBdg">--</div>
+  <div class="time" id="qTime">--</div>
   <div class="divider"></div>
-  <div class="hint">📸 此页面为您的等位凭证<br>叫号时请出示</div>
+  <div class="tip">📸 请截图保存<br>叫号时出示此页面</div>
 </div>
 <script>
-const p=new URLSearchParams(location.search);
-document.getElementById('qNum').textContent=p.get('n')||'--';
-const t=p.get('t')||'';
-const tm={'A':'1-2人','B':'3-4人','C':'5人以上'};
-document.getElementById('qType').textContent=tm[t]||t||'';
-document.getElementById('qTime').textContent='取号时间: '+(p.get('tm')||'--');
-document.getElementById('sName').textContent=p.get('s')||'湘阁里辣';
+(function(){
+  var p=new URLSearchParams(location.search);
+  var n=p.get('n')||'--';
+  var t=p.get('t')||'';
+  var tm=p.get('tm')||'';
+  var tb={'A':'A区 · 1-2人','B':'B区 · 3-4人','C':'C区 · 5人以上'};
+  document.getElementById('qNum').textContent=n;
+  var bdg=document.getElementById('qTypeBdg');
+  bdg.textContent=tb[t]||t||'';
+  bdg.className='type-badge '+t;
+  document.getElementById('qTime').textContent='取号时间：'+tm;
+})();
 </script>
 </body>
 </html>

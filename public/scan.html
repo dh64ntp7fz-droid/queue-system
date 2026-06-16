@@ -120,7 +120,7 @@ function selectPeople(n) {
   currentPeople = n;
   document.querySelectorAll('#scanPeopleBtns button').forEach(b => b.style.background='');
   const btn = document.getElementById('pBtn'+n);
-  if (btn) btn.style.background = '#B22222'; btn.style.color = '#fff';
+  if (btn) { btn.style.background = '#B22222'; btn.style.color = '#fff'; }
   else document.getElementById('customPpl').value = n||'';
 
   const preview = document.getElementById('typePreview');
@@ -149,7 +149,7 @@ async function doTake() {
     document.getElementById('resNum').textContent = d.queue_number;
     document.getElementById('resType').textContent = typeMap[d.type] || '';
     document.getElementById('resTime').textContent = '取号: ' + new Date(d.created_at).toLocaleString('zh-CN', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
-    document.getElementById('qrImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(location.href)}`;
+    document.getElementById('qrImg').src='https://api.qrserver.com/v1/create-qr-code/?size=160x160&data='+encodeURIComponent(location.origin+'/s.html?n='+d.queue_number+'&t='+d.type+'&tm='+encodeURIComponent(new Date(d.created_at).toLocaleString('zh-CN',{hour:'2-digit',minute:'2-digit',second:'2-digit'})));
     document.getElementById('resultCard').classList.add('show');
     document.getElementById('formCard').style.display = 'none';
   } catch(e) { toast('取号失败'); }
