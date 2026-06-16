@@ -247,7 +247,7 @@ async function doLogin(){
     console.log("login ok:",d.username,d.store);
     S.token=d.token;
     S.store=d.store.id||d.store;
-    S.storeName=d.store.name||d.store;
+    S.storeName=d.storeName||d.store.name||d.store;
     // 隐藏登录页，显示主界面
     document.getElementById("loginPage").classList.add("hide");
     document.getElementById("storeLabel").textContent=S.storeName;
@@ -407,7 +407,7 @@ function speak(text,times){
     repeat++;
     if(window.speechSynthesis)window.speechSynthesis.cancel();
     var u1=new SpeechSynthesisUtterance(numPart);
-    u1.lang="zh-CN";u1.rate=0.75;u1.pitch=1.1;u1.volume=1;
+    u1.rate=0.75;u1.pitch=1.1;u1.volume=1;
     u1.onend=function(){
       setTimeout(function(){
         var u2=new SpeechSynthesisUtterance(cnPart);
@@ -417,7 +417,7 @@ function speak(text,times){
         window.speechSynthesis.speak(u2);
       },300);
     };
-    setVoice(u1);
+    // 号码部分用默认语音（自然读字母和数字）
     window.speechSynthesis.speak(u1);
   }
   loop();
