@@ -76,12 +76,16 @@ body {
 }
 .result-number .label { font-size:13px; color:var(--text-light); margin-bottom:4px; }
 .result-number .number {
-  font-size:56px; font-weight:900; color:var(--blue); letter-spacing:2px; line-height:1.1;
+  font-size:64px; font-weight:900; color:var(--primary); letter-spacing:4px; line-height:1.1;
 }
 .result-number .type-tag {
-  display:inline-block; padding:2px 12px; border-radius:12px; font-size:12px;
-  font-weight:600; background:var(--blue-bg); color:var(--blue); margin-bottom:8px;
+  display:inline-block; padding:4px 16px; border-radius:12px; font-size:13px;
+  font-weight:600; background:var(--gold-light); color:var(--text); margin-bottom:12px;
 }
+.result-time {
+  text-align:center; font-size:16px; color:var(--text-light); margin-top:4px;
+}
+.result-time strong { color:var(--text); font-size:20px; }
 .result-detail {
   background:var(--bg); border-radius:12px; padding:16px; margin-top:16px;
 }
@@ -90,12 +94,8 @@ body {
 .result-detail .row .key { color:var(--text-light); }
 .result-detail .row .val { font-weight:600; }
 .result-ahead {
-  text-align:center; margin-top:16px; padding:12px;
-  background:linear-gradient(135deg,var(--green-bg),#C8E6C9);
-  border-radius:12px;
+  display:none;
 }
-.result-ahead .ahead-num { font-size:32px; font-weight:900; color:var(--green); }
-.result-ahead .ahead-label { font-size:13px; color:var(--green); margin-top:2px; }
 
 .result-tips {
   margin-top:16px; padding:12px; background:var(--gold-light);
@@ -147,7 +147,11 @@ body {
   <div class="form-row">
     <div class="form-group">
       <label>用餐人数 <span class="req">*</span></label>
-      <input type="number" id="people" placeholder="如: 4" min="1" max="20" value="2">
+      <input type="number" id="people" placeholder="如: 4" min="1" max="20" value="2" oninput="updateTypePreview()">
+    </div>
+    <div class="form-group">
+      <label>号段</label>
+      <div id="typePreview" style="padding:12px 14px;border:2px solid #e8e8e8;border-radius:10px;font-size:16px;background:#f5f5f5;font-weight:700;color:var(--primary);text-align:center;">B区(2-4人)</div>
     </div>
   </div>
   <div class="form-group">
@@ -169,9 +173,10 @@ body {
 <!-- 结果卡片 -->
 <div class="card result-card" id="resultCard">
   <div class="result-number">
-    <div class="type-tag">📱 线上取号</div>
-    <div class="label">您的排队号</div>
-    <div class="number" id="resultNumber">A001</div>
+    <div class="type-tag" id="resultType">B区(2-4人)</div>
+    <div class="label">排队号</div>
+    <div class="number" id="resultNumber">1</div>
+    <div class="result-time">取号时间：<strong id="resultTime">--:--</strong></div>
   </div>
   <div class="result-ahead">
     <div class="ahead-num" id="aheadNum">0</div>
@@ -219,6 +224,15 @@ async function loadStoreInfo() {
   }
 }
 
+function updateTypePreview() {
+  const people = parseInt(document.getElementById('people').value) || 1;
+  let label;
+  if (people === 1) label = 'A区(1人)';
+  else if (people >= 2 && people <= 4) label = 'B区(2-4人)';
+  else label = 'C区(5人以上)';
+  document.getElementById('typePreview').textContent = label;
+}
+
 // 提交取号
 async function submitQueue() {
   const name = document.getElementById('name').value.trim();
@@ -258,7 +272,13 @@ async function submitQueue() {
 function showResult(record) {
   document.getElementById('formCard').style.display = 'none';
   document.getElementById('resultCard').classList.add('show');
+  const typeNames = { A: 'A区(1人)', B: 'B区(2-4人)', C: 'C区(5人以上)' };
+  document.getElementById('resultType').textContent = typeNames[record.type] || '已取号';
   document.getElementById('resultNumber').textContent = record.queue_number;
+  // 取号时间
+  const now = new Date();
+  const timeStr = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+  document.getElementById('resultTime').textContent = timeStr;
   document.getElementById('aheadNum').textContent = record.queue_ahead || 0;
   document.getElementById('resultName').textContent = record.name;
   document.getElementById('resultPeople').textContent = record.people + '人';

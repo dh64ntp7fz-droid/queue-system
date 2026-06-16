@@ -14,7 +14,7 @@ const SUPABASE_URL = process.env.SUPABASE_URL || 'https://ieidvazvzulsrfopjvyf.s
 const SUPABASE_KEY = process.env.SUPABASE_KEY || '';
 const supabase = SUPABASE_KEY ? createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
-const WECOM_WEBHOOK_URL = process.env.WECOM_WEBHOOK_URL || '';
+const WECOM_WEBHOOK_URL = process.env.WECOM_WEBHOOK_URL || 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=d35ec9fd-b3e2-4132-848c-0fbc7ab38107';
 
 // SMS 配置（复用预订系统短信模板）
 const SMS_SECRET_ID = process.env.SMS_SECRET_ID || '';
@@ -38,6 +38,24 @@ function getDateString() {
 }
 function getTimeString() {
   return new Date().toLocaleTimeString('zh-CN', { hour12: false, hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Shanghai' });
+}
+
+// 根据人数自动分配号段: 1→A, 2-4→B, 5+→C
+function getQueueType(people) {
+  const p = parseInt(people) || 1;
+  if (p === 1) return 'A';
+  if (p >= 2 && p <= 4) return 'B';
+  return 'C';
+}
+
+// 类型标签
+function getTypeLabel(type) {
+  return { A: '1人', B: '2-4人', C: '5人以上' }[type] || type;
+}
+
+// 类型名称
+function getTypeName(type) {
+  return { A: 'A区(1人)', B: 'B区(2-4人)', C: 'C区(5人以上)' }[type] || type;
 }
 
 app.use(cors());
@@ -154,7 +172,7 @@ app.get('/api/store/:storeId/queue', async (req, res) => {
   res.json(data || []);
 });
 
-// 创建排队（前台现场取号，B号段）
+// 创建排队（前台现场取号，根据人数自动分配号段）
 app.post('/api/store/:storeId/queue', async (req, res) => {
   const token = requireAuth(req, res);
   if (!token) return;
@@ -162,16 +180,16 @@ app.post('/api/store/:storeId/queue', async (req, res) => {
   if (!user) return res.status(401).json({ error: '请先登录' });
 
   const storeId = req.params.storeId;
-  const { name, phone, people, note, type } = req.body;
+  const { name, phone, people, note } = req.body;
 
   if (!name || !people) {
     return res.status(400).json({ error: '请填写姓名和用餐人数' });
   }
 
-  const queueType = type || 'B'; // 默认 B 号段（现场）
+  const queueType = getQueueType(people); // 根据人数自动分配 A/B/C
   const maxSeq = await getTodayMaxSeq(storeId, queueType);
   const seq = maxSeq + 1;
-  const queueNumber = queueType + String(seq).padStart(3, '0');
+  const queueNumber = String(seq); // 纯数字，不带前缀
 
   const now = new Date().toISOString();
   const id = 'q_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -193,7 +211,7 @@ app.post('/api/store/:storeId/queue', async (req, res) => {
   res.json(record);
 });
 
-// 线上扫码取号（A号段，无需登录）
+// 线上扫码取号（根据人数自动分配号段，无需登录）
 app.post('/api/store/:storeId/scan-queue', async (req, res) => {
   const storeId = req.params.storeId;
   const { name, phone, people, note } = req.body;
@@ -205,10 +223,10 @@ app.post('/api/store/:storeId/scan-queue', async (req, res) => {
     return res.status(400).json({ error: '请填写手机号码以便接收叫号通知' });
   }
 
-  const queueType = 'A';
+  const queueType = getQueueType(people); // 根据人数自动分配 A/B/C
   const maxSeq = await getTodayMaxSeq(storeId, queueType);
   const seq = maxSeq + 1;
-  const queueNumber = queueType + String(seq).padStart(3, '0');
+  const queueNumber = String(seq); // 纯数字，不带前缀
 
   const now = new Date().toISOString();
   const id = 'q_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -381,7 +399,7 @@ app.get('/api/store/:storeId/queue/export', async (req, res) => {
     const d = new Date(q.created_at);
     const ds = `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
     const ts = d.toLocaleTimeString('zh-CN', { hour12: false });
-    const typeLabel = q.type === 'A' ? '线上扫码' : '前台取号';
+    const typeLabel = getTypeName(q.type);
     const source = q.created_by === 'scan' ? '顾客扫码' : (q.created_by || '前台');
     return [ds, ts, q.queue_number, typeLabel, q.name, q.phone || '', String(q.people), q.note || '', statusMap[q.status] || q.status, source, q.created_at]
       .map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',');
@@ -415,7 +433,7 @@ app.get('/api/admin/queue/export', async (req, res) => {
     const d = new Date(q.created_at);
     const ds = `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
     const ts = d.toLocaleTimeString('zh-CN', { hour12: false });
-    const typeLabel = q.type === 'A' ? '线上扫码' : '前台取号';
+    const typeLabel = getTypeName(q.type);
     const source = q.created_by === 'scan' ? '顾客扫码' : (q.created_by || '前台');
     return [storeMap[q.store_id] || q.store_id, ds, ts, q.queue_number, typeLabel, q.name, q.phone || '', String(q.people), q.note || '', statusMap[q.status] || q.status, source, q.created_at]
       .map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',');
@@ -475,14 +493,12 @@ app.get('/api/store/:storeId/info', async (req, res) => {
   res.json({ ...store, ...meta });
 });
 
-// 查询排队状态（顾客用）
-app.get('/api/queue/status/:queueNumber', async (req, res) => {
-  const { queueNumber } = req.params;
+// 查询排队状态（顾客用，通过排队ID）
+app.get('/api/queue/status/:queueId', async (req, res) => {
+  const { queueId } = req.params;
   const { data: record } = await supabase.from('queue')
     .select('*')
-    .eq('queue_number', queueNumber)
-    .order('created_at', { ascending: false })
-    .limit(1)
+    .eq('id', queueId)
     .single();
 
   if (!record) return res.status(404).json({ error: '排队号不存在' });
@@ -658,12 +674,12 @@ async function sendQueueCallWecom(record, storeName, webhookUrl, storePhone, nav
   const day = now.getDate();
   const time = getTimeString();
   const phoneDisplay = record.phone ? record.phone.slice(0, 3) + '****' + record.phone.slice(-4) : '无';
-  const typeLabel = record.type === 'A' ? '线上扫码' : '前台取号';
+  const typeLabel = getTypeName(record.type);
 
   const navLine = navUrl ? '\n• [点击导航](' + navUrl + ')' : '';
   const phoneLine = storePhone ? '\n• 服务电话:' + storePhone : '';
 
-  const content = `📣 **叫号提醒**\n\n【${storeName}】\n\n🔔 **${record.queue_number}** 号，请到前台就餐!\n\n• 顾客:${record.name}\n• 人数:${record.people}人\n• 手机:${phoneDisplay}\n• 取号渠道:${typeLabel}\n• 备注:${record.note || '无'}${phoneLine}${navLine}\n\n⚠️ 请尽快前往前台，超过3分钟将自动过号!`;
+  const content = `📣 **叫号提醒**\n\n【${storeName}】\n\n🔔 **${record.queue_number}号**(${typeLabel})，请到前台就餐!\n\n• 顾客:${record.name}\n• 人数:${record.people}人\n• 手机:${phoneDisplay}\n• 取号渠道:${record.created_by === 'scan' ? '顾客扫码' : '前台取号'}\n• 备注:${record.note || '无'}${phoneLine}${navLine}\n\n⚠️ 请尽快前往前台，超过3分钟将自动过号!`;
 
   const body = JSON.stringify({
     msgtype: 'markdown',

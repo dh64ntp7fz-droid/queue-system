@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS queue (
   id TEXT PRIMARY KEY,
   store_id TEXT NOT NULL,
   queue_number TEXT NOT NULL,       -- A001 / B015
-  type CHAR(1) NOT NULL CHECK (type IN ('A', 'B')),
+  type CHAR(1) NOT NULL CHECK (type IN ('A', 'B', 'C')),
   daily_seq INTEGER NOT NULL,       -- 当日序号，用于自动递增和排序
   name TEXT NOT NULL,
   phone TEXT DEFAULT '',

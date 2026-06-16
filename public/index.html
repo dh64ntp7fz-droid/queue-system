@@ -95,6 +95,7 @@ body {
 }
 .section-badge.a { background:var(--blue-bg); color:var(--blue); }
 .section-badge.b { background:var(--orange-bg); color:var(--orange); }
+.section-badge.c { background:var(--purple-bg); color:var(--purple); }
 
 /* ── 队列卡片网格 ── */
 .queue-grid {
@@ -114,6 +115,7 @@ body {
 .queue-card::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; }
 .queue-card.type-a::before { background:linear-gradient(90deg,var(--blue),#64B5F6); }
 .queue-card.type-b::before { background:linear-gradient(90deg,var(--orange),#FFB74D); }
+.queue-card.type-c::before { background:linear-gradient(90deg,var(--purple),#CE93D8); }
 
 /* 状态颜色 */
 .queue-card.status-waiting { background:#fff; }
@@ -131,11 +133,13 @@ body {
 }
 .queue-number.a { color:var(--blue); }
 .queue-number.b { color:var(--orange); }
+.queue-number.c { color:var(--purple); }
 .queue-type-tag {
   font-size:10px; padding:1px 6px; border-radius:4px; font-weight:600; display:inline-block; margin-bottom:8px;
 }
 .queue-type-tag.a { background:var(--blue-bg); color:var(--blue); }
 .queue-type-tag.b { background:var(--orange-bg); color:var(--orange); }
+.queue-type-tag.c { background:var(--purple-bg); color:var(--purple); }
 .queue-info { font-size:13px; color:var(--text-light); line-height:1.8; margin-bottom:8px; }
 .queue-info strong { color:var(--text); }
 .queue-status-tag {
@@ -309,16 +313,22 @@ body {
     <div class="stat-card seated"><div class="stat-num" id="statSeated">0</div><div class="stat-label">✅ 已入座</div></div>
   </div>
 
-  <!-- A号段：线上扫码 -->
-  <div class="section-title">📱 线上取号 <span class="section-badge a">A号段</span></div>
+  <!-- 👤 A区：1人 -->
+  <div class="section-title">👤 A区 <span class="section-badge a">1人</span></div>
   <div class="queue-grid" id="queueGridA">
-    <div class="empty-queue"><div class="empty-icon">📭</div><p>暂无线上排队</p></div>
+    <div class="empty-queue"><div class="empty-icon">📭</div><p>暂无排队</p></div>
   </div>
 
-  <!-- B号段：现场取号 -->
-  <div class="section-title">🏪 现场取号 <span class="section-badge b">B号段</span></div>
+  <!-- 👥 B区：2-4人 -->
+  <div class="section-title">👥 B区 <span class="section-badge b">2-4人</span></div>
   <div class="queue-grid" id="queueGridB">
-    <div class="empty-queue"><div class="empty-icon">📭</div><p>暂无现场排队</p></div>
+    <div class="empty-queue"><div class="empty-icon">📭</div><p>暂无排队</p></div>
+  </div>
+
+  <!-- 👨‍👩‍👧‍👦 C区：5人以上 -->
+  <div class="section-title">👨‍👩‍👧‍👦 C区 <span class="section-badge c">5人以上</span></div>
+  <div class="queue-grid" id="queueGridC">
+    <div class="empty-queue"><div class="empty-icon">📭</div><p>暂无排队</p></div>
   </div>
 
   <!-- 底部记录表格 -->
@@ -348,17 +358,14 @@ body {
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
     <h2 id="modalTitle">📝 现场取号</h2>
-    <div class="form-group">
-      <label>号段类型 <span class="req">*</span></label>
-      <select id="mqType">
-        <option value="B">B号段 - 现场取号</option>
-        <option value="A">A号段 - 线上扫码</option>
-      </select>
-    </div>
     <div class="form-row">
       <div class="form-group">
         <label>用餐人数 <span class="req">*</span></label>
-        <input type="number" id="mqPeople" placeholder="如: 4" min="1" max="99" value="2">
+        <input type="number" id="mqPeople" placeholder="如: 4" min="1" max="99" value="2" oninput="updateTypePreview()">
+      </div>
+      <div class="form-group">
+        <label>自动号段</label>
+        <div id="mqTypePreview" style="padding:10px 14px;border:2px solid #e8e8e8;border-radius:8px;font-size:15px;background:#f5f5f5;font-weight:700;color:var(--primary);">B区(2-4人)</div>
       </div>
     </div>
     <div class="form-group">
@@ -549,14 +556,16 @@ function connectSSE() {
 function renderAll() {
   renderQueueGroup('queueGridA', state.queueA, 'A');
   renderQueueGroup('queueGridB', state.queueB, 'B');
+  renderQueueGroup('queueGridC', state.queueC, 'C');
   updateStats();
   renderTable();
 }
 
 function renderQueueGroup(gridId, items, type) {
   const grid = document.getElementById(gridId);
+  const typeNames = { A: '1人', B: '2-4人', C: '5人以上' };
   if (!items.length) {
-    grid.innerHTML = '<div class="empty-queue"><div class="empty-icon">📭</div><p>暂无' + (type==='A'?'线上':'现场') + '排队</p></div>';
+    grid.innerHTML = '<div class="empty-queue"><div class="empty-icon">📭</div><p>暂无排队</p></div>';
     return;
   }
 
@@ -589,7 +598,7 @@ function renderQueueGroup(gridId, items, type) {
 
     return `<div class="queue-card type-${type.toLowerCase()} status-${status}">
       ${storeLabel}
-      <span class="queue-type-tag ${type.toLowerCase()}">${type==='A'?'线上扫码':'现场取号'}</span>
+      <span class="queue-type-tag ${type.toLowerCase()}">${typeNames[type]}</span>
       <div class="queue-number ${type.toLowerCase()}">${q.queue_number}</div>
       ${countdownHtml}
       <span class="queue-status-tag ${status}">${statusMap[status]}</span>
@@ -597,6 +606,7 @@ function renderQueueGroup(gridId, items, type) {
         <strong>${q.name}</strong> · ${q.people}人<br>
         ${q.phone ? '📞 ' + q.phone : ''}
         ${q.note ? '<br>💬 ' + q.note : ''}
+        ${isActive ? '<br><span class="wait-time" data-created="' + q.created_at + '">⏱ 排队中...</span>' : ''}
       </div>
       ${isActive ? `<div class="queue-actions">${actionsHtml}</div>` : ''}
     </div>`;
@@ -612,12 +622,14 @@ function updateStats() {
   document.getElementById('statSeated').textContent = state.queue.filter(q => q.status === 'seated').length;
 }
 
-// ── 倒计时更新 ──
+// ── 倒计时 & 等待时间更新 ──
 function updateCountdowns() {
+  const now = Date.now();
+  // 叫号超时倒计时
   document.querySelectorAll('.countdown').forEach(el => {
     const calledAt = new Date(el.dataset.called).getTime();
-    const elapsed = Math.floor((Date.now() - calledAt) / 1000);
-    const remaining = 180 - elapsed; // 3分钟 = 180秒
+    const elapsed = Math.floor((now - calledAt) / 1000);
+    const remaining = 180 - elapsed;
     if (remaining <= 0) {
       el.textContent = '⏰ 已超时!';
       el.style.color = 'var(--red)';
@@ -625,6 +637,19 @@ function updateCountdowns() {
       const m = Math.floor(remaining / 60);
       const s = remaining % 60;
       el.textContent = `⏱ 剩余 ${m}:${String(s).padStart(2,'0')}`;
+    }
+  });
+  // 等位中已排队时间
+  document.querySelectorAll('.wait-time').forEach(el => {
+    const created = new Date(el.dataset.created).getTime();
+    const elapsed = Math.floor((now - created) / 1000);
+    const m = Math.floor(elapsed / 60);
+    if (m < 1) el.textContent = '⏱ 刚刚取号';
+    else if (m < 60) el.textContent = '⏱ 已排队 ' + m + ' 分钟';
+    else {
+      const h = Math.floor(m / 60);
+      const rm = m % 60;
+      el.textContent = '⏱ 已排队 ' + h + '小时' + rm + '分钟';
     }
   });
 }
@@ -648,7 +673,7 @@ function renderTable() {
   }
 
   const statusMap = { waiting: '等位中', called: '已叫号', seated: '已入座', skipped: '已过号', cancelled: '已取消' };
-  const typeMap = { A: '线上', B: '现场' };
+  const typeMap = { A: 'A区(1人)', B: 'B区(2-4人)', C: 'C区(5人+)' };
 
   tbody.innerHTML = list.map(q => {
     const storeCol = state.isAdmin ? `<td>${q._storeName || ''}</td>` : '';
@@ -686,13 +711,21 @@ function switchTab(tab) {
 // ── 弹窗 ──
 function showNewQueue() {
   document.getElementById('modalTitle').textContent = '📝 现场取号';
-  document.getElementById('mqType').value = 'B';
-  document.getElementById('mqType').disabled = false;
   document.getElementById('mqName').value = '';
   document.getElementById('mqPhone').value = '';
   document.getElementById('mqPeople').value = '2';
   document.getElementById('mqNote').value = '';
   document.getElementById('modalOverlay').classList.add('show');
+  updateTypePreview();
+}
+
+function updateTypePreview() {
+  const people = parseInt(document.getElementById('mqPeople').value) || 1;
+  let label;
+  if (people === 1) label = 'A区(1人)';
+  else if (people >= 2 && people <= 4) label = 'B区(2-4人)';
+  else label = 'C区(5人以上)';
+  document.getElementById('mqTypePreview').textContent = label;
 }
 
 function closeModal() {
@@ -700,7 +733,6 @@ function closeModal() {
 }
 
 async function submitNewQueue() {
-  const type = document.getElementById('mqType').value;
   const name = document.getElementById('mqName').value.trim();
   const phone = document.getElementById('mqPhone').value.trim();
   const people = parseInt(document.getElementById('mqPeople').value) || 2;
@@ -712,7 +744,7 @@ async function submitNewQueue() {
     const r = await fetch(`/api/store/${state.store}/queue`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + state.token },
-      body: JSON.stringify({ name, phone, people, note, type })
+      body: JSON.stringify({ name, phone, people, note })
     });
     const d = await r.json();
     if (!r.ok) { toast(d.error || '取号失败', 'error'); return; }
@@ -811,7 +843,7 @@ async function printTicket(record) {
       <div style="margin:4px 0;">${state.storeName}</div>
       <div style="border-top:1px dashed #000;margin:4px 0;"></div>
       <div style="font-size:18px;font-weight:bold;margin:8px 0;">${record.queue_number}</div>
-      <div style="margin:4px 0;">${record.type==='A'?'线上扫码':'现场取号'}</div>
+      <div style="margin:4px 0;">${({A:'A区(1人)',B:'B区(2-4人)',C:'C区(5人以上)'})[record.type] || ''}</div>
       <div style="border-top:1px dashed #000;margin:4px 0;"></div>
       <div style="text-align:left;padding:4px 8px;">
         顾客: ${record.name}<br>
