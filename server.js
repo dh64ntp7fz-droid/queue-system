@@ -61,8 +61,13 @@ function getTypeName(type) {
 app.use(cors());
 app.use(express.json());
 // 静态文件
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 app.use(express.static(path.join(__dirname, 'public')));
+
+// 根路径 → 顾客扫码取号页
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'scan.html')));
+
+// 管理面板 → /admin
+app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
 // ── SSE 通知 ──
 function notifyAll(event, data) {
@@ -678,7 +683,7 @@ if (!supabase) {
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🍜 等位叫号系统已启动: http://localhost:${PORT}`);
-  console.log(`📋 默认账号: xgll2122 / 2122`);
+  console.log(`📋 顾客扫码取号: https://queue-system-zimj.onrender.com/`);
+  console.log(`🔐 管理面板: https://queue-system-zimj.onrender.com/admin`);
   console.log(`🗄️ 数据存储: Supabase (${SUPABASE_URL})`);
-  console.log(`📱 扫码取号: http://localhost:${PORT}/public/scan.html`);
 });
