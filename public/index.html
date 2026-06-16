@@ -200,8 +200,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
 <h3>⚙️ 叫号设置</h3>
 <label>语音风格</label>
 <select id="voiceSel"><option value="0">🎵 情感女声（推荐）</option><option value="1">🍭 甜美</option><option value="2">🎤 沉稳男声</option><option value="3">🔊 自然标准</option></select>
-<label>语速: <span id="rateV">1.0</span></label>
-<input type="range" id="spRate" min="0.5" max="2.0" step="0.1" value="1.0" oninput="document.getElementById('rateV').textContent=this.value">
+<label>语速: <span id="rateV">0.85</span></label>
+<input type="range" id="spRate" min="0.5" max="2.0" step="0.1" value="0.85" oninput="document.getElementById('rateV').textContent=this.value">
+<div class="mod-tog"><span>叫号重复次数</span>
+<select id="callRepeat"><option value="1">1次</option><option value="2">2次</option><option value="3">3次</option><option value="4">4次</option><option value="5" selected>5次（默认）</option></select></div>
 <div class="mod-tog"><span>取号后显示二维码</span><input type="checkbox" id="shQr" checked></div>
 <div class="mod-tog"><span>取号后自动打印</span><input type="checkbox" id="autoPrt"></div>
 <button class="mod-save" onclick="saveSettings()">💾 保存设置</button>
@@ -382,7 +384,7 @@ async function doCall(id){
     var d=await r.json();
     if(!r.ok){toast(d.error||"失败");return}
     var t=d.queue_number+",湘阁里辣请您用餐了！";
-    speak(t,5);
+    speak(t,S.stg.repeat||5);
     await load();
   }catch(e){toast("叫号失败")}
 }
@@ -403,7 +405,7 @@ function speak(text,times){
     if(repeat>=cnt)return;
     repeat++;
     var ut=new SpeechSynthesisUtterance(text);
-    ut.lang="zh-CN";ut.rate=1.0;ut.volume=1;
+    ut.lang="zh-CN";ut.rate=S.stg.speechRate||0.85;ut.volume=1;
     var pm=[1.0,1.1,0.92,1.0];
     ut.pitch=pm[parseInt(S.stg.voice)]||1.0;
     var vv=window.speechSynthesis.getVoices();
@@ -435,10 +437,11 @@ async function doCancel(id){
 
 function loadStg(){
   var d=JSON.parse(localStorage.getItem("qs")||"{}");
-  S.stg={voice:d.voice||"0",speechRate:d.speechRate||1.0,showQr:d.showQr!==false,autoPrint:d.autoPrint===true};
+  S.stg={voice:d.voice||"0",speechRate:d.speechRate||0.85,repeat:d.repeat||5,showQr:d.showQr!==false,autoPrint:d.autoPrint===true};
   document.getElementById("voiceSel").value=S.stg.voice;
   document.getElementById("spRate").value=S.stg.speechRate;
   document.getElementById("rateV").textContent=S.stg.speechRate;
+  document.getElementById("callRepeat").value=S.stg.repeat;
   document.getElementById("shQr").checked=S.stg.showQr;
   document.getElementById("autoPrt").checked=S.stg.autoPrint;
 }
@@ -447,7 +450,7 @@ function showSettings(){loadStg();document.getElementById("setMod").classList.ad
 function closeSettings(){document.getElementById("setMod").classList.remove("show")}
 function saveSettings(){
   try{
-    S.stg={voice:document.getElementById("voiceSel").value,speechRate:parseFloat(document.getElementById("spRate").value),showQr:document.getElementById("shQr").checked,autoPrint:document.getElementById("autoPrt").checked};
+    S.stg={voice:document.getElementById("voiceSel").value,speechRate:parseFloat(document.getElementById("spRate").value),repeat:parseInt(document.getElementById("callRepeat").value)||5,showQr:document.getElementById("shQr").checked,autoPrint:document.getElementById("autoPrt").checked};
     localStorage.setItem("qs",JSON.stringify(S.stg));
     closeSettings();toast("✅ 设置已保存");
   }catch(e){toast("❌ 保存失败:"+e.message)}
