@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>湘阁里辣 · 等位凭证</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:linear-gradient(180deg,#B22222 0%,#8B0000 35%,#f5f5f5 35%);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:0 16px}
+.logo{padding:30px 0 20px;color:#fff;text-align:center}
+.logo h1{font-size:20px;font-weight:700}
+.logo .sub{font-size:11px;opacity:.7;margin-top:2px}
+.card{background:#fff;border-radius:16px;padding:24px;width:100%;max-width:340px;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.1)}
+.card .store-name{font-size:13px;color:#999;margin-bottom:8px}
+.card .queue-num{font-size:60px;font-weight:800;color:#B22222;line-height:1.1}
+.card .queue-type{font-size:14px;color:#999;margin:4px 0}
+.card .queue-time{font-size:13px;color:#888;margin-bottom:12px}
+.card .divider{height:1px;background:#eee;margin:12px 0}
+.card .hint{font-size:12px;color:#B22222;font-weight:600}
+</style>
+</head>
+<body>
+<div class="logo"><h1>🍜 湘阁里辣</h1><div class="sub">等位叫号凭证</div></div>
+<div class="card">
+  <div class="store-name" id="sName">--</div>
+  <div class="queue-num" id="qNum">--</div>
+  <div class="queue-type" id="qType">--</div>
+  <div class="queue-time" id="qTime">--</div>
+  <div class="divider"></div>
+  <div class="hint">📸 此页面为您的等位凭证<br>叫号时请出示</div>
+</div>
+<script>
+const p=new URLSearchParams(location.search);
+document.getElementById('qNum').textContent=p.get('n')||'--';
+const t=p.get('t')||'';
+const tm={'A':'1-2人','B':'3-4人','C':'5人以上'};
+document.getElementById('qType').textContent=tm[t]||t||'';
+document.getElementById('qTime').textContent='取号时间: '+(p.get('tm')||'--');
+document.getElementById('sName').textContent=p.get('s')||'湘阁里辣';
+</script>
+</body>
+</html>

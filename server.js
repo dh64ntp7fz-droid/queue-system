@@ -43,19 +43,19 @@ function getTimeString() {
 // 根据人数自动分配号段: 1→A, 2-4→B, 5+→C
 function getQueueType(people) {
   const p = parseInt(people) || 1;
-  if (p === 1) return 'A';
-  if (p >= 2 && p <= 4) return 'B';
-  return 'C';
+  if (p <= 2) return 'A';       // 1-2人 → A
+  if (p <= 4) return 'B';       // 3-4人 → B
+  return 'C';                   // 5人+ → C
 }
 
 // 类型标签
 function getTypeLabel(type) {
-  return { A: '1人', B: '2-4人', C: '5人以上' }[type] || type;
+  return { A: '1-2人', B: '3-4人', C: '5人以上' }[type] || type;
 }
 
 // 类型名称
 function getTypeName(type) {
-  return { A: 'A区(1人)', B: 'B区(2-4人)', C: 'C区(5人以上)' }[type] || type;
+  return { A: 'A区(1-2人)', B: 'B区(3-4人)', C: 'C区(5人以上)' }[type] || type;
 }
 
 app.use(cors());

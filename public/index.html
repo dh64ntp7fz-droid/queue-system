@@ -5,483 +5,272 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>湘阁里辣 · 等位叫号</title>
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
-html, body { height:100%; overflow-x:hidden; }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
-  background: #f5f5f5; color: #2C2C2C; font-size: 14px;
-  display: flex; flex-direction: column; min-height: 100vh;
-}
-/* HEADER - compact */
-.header {
-  background: linear-gradient(135deg, #B22222, #8B0000); color: #fff;
-  padding: 6px 12px; display: flex; align-items: center; justify-content: space-between;
-  position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 4px rgba(0,0,0,.15);
-}
-.header h1 { font-size: 15px; font-weight: 700; }
-.header .sub { font-size: 11px; opacity: .85; margin-top: 1px; }
-.header .btns { display: flex; gap: 6px; }
-.header .btns button {
-  background: rgba(255,255,255,.15); border: none; color: #fff;
-  width: 32px; height: 32px; border-radius: 8px; font-size: 16px; cursor: pointer;
-}
-
-/* QUICK TAKE */
-.quick-take { padding: 8px 10px; background: #fff; border-bottom: 1px solid #eee; position: sticky; top: 44px; z-index: 99; }
-.quick-take .label { font-size: 11px; color: #999; margin-bottom: 6px; text-align: center; }
-.people-row { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; justify-content: center; }
-.people-row button {
-  min-width: 36px; height: 36px; border-radius: 8px; border: 2px solid #B22222;
-  background: #fff; color: #B22222; font-size: 15px; font-weight: 700; cursor: pointer;
-  transition: .1s; -webkit-tap-highlight-color: transparent;
-}
-.people-row button:active { background: #B22222; color: #fff; }
-.people-row input {
-  width: 52px; height: 36px; border-radius: 8px; border: 2px solid #ccc;
-  text-align: center; font-size: 14px; font-weight: 700; outline: none;
-}
-.people-row input:focus { border-color: #B22222; }
-
-/* MAIN SCROLL AREA */
-.main-scroll {
-  flex: 1; overflow-y: auto; padding: 8px 10px 20px;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* SECTION */
-.section { margin-bottom: 12px; }
-.section-title {
-  font-size: 12px; font-weight: 700; color: #888; padding: 4px 2px 6px;
-  display: flex; align-items: center; gap: 6px;
-}
-
-/* QUEUE ITEMS - compact row */
-.queue-item {
-  display: flex; align-items: center; padding: 8px 10px; background: #fff;
-  border-radius: 8px; margin-bottom: 4px; gap: 8px;
-  box-shadow: 0 1px 2px rgba(0,0,0,.04);
-  border-left: 3px solid #B22222;
-}
-.queue-item.skipped { border-left-color: #ccc; opacity: .6; }
-.queue-num {
-  font-size: 26px; font-weight: 800; color: #B22222; min-width: 40px; text-align: center;
-  line-height: 1;
-}
-.skipped .queue-num { color: #999; }
-.queue-info { flex: 1; min-width: 0; }
-.queue-info .ppl { font-size: 14px; font-weight: 700; }
-.queue-info .wait { font-size: 11px; color: #999; margin-top: 1px; }
-.queue-info .phone { font-size: 10px; color: #aaa; }
-.queue-acts { display: flex; gap: 4px; flex-shrink: 0; }
-.queue-acts button {
-  padding: 5px 10px; border-radius: 6px; border: none; font-size: 12px;
-  font-weight: 600; cursor: pointer; white-space: nowrap;
-  -webkit-tap-highlight-color: transparent;
-}
-.btn-call { background: #B22222; color: #fff; }
-.btn-call:active { background: #8B0000; }
-.btn-cnl { background: #f0f0f0; color: #666; }
-.btn-cnl:active { background: #ddd; }
-
-.empty-hint { text-align: center; color: #ccc; padding: 24px; font-size: 13px; }
-
-/* HISTORY TABLE */
-.history table { width: 100%; border-collapse: collapse; font-size: 12px; background: #fff; border-radius: 8px; overflow: hidden; }
-.history th { background: #f9f9f9; color: #888; padding: 6px 4px; font-weight: 400; }
-.history td { padding: 5px 4px; text-align: center; border-bottom: 1px solid #f5f5f5; }
-.history td:first-child { font-weight: 700; color: #B22222; }
-.history .row-btn { padding: 3px 8px; font-size: 11px; border: 1px solid #ddd; background: #fff; border-radius: 4px; cursor: pointer; }
-
-/* MODAL */
-.modal-overlay {
-  display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4);
-  z-index: 200; align-items: center; justify-content: center;
-}
-.modal-overlay.show { display: flex; }
-.modal-box {
-  background: #fff; width: 90%; max-width: 360px; border-radius: 14px;
-  padding: 20px; max-height: 80vh; overflow-y: auto;
-}
-.modal-box h3 { font-size: 16px; margin-bottom: 14px; }
-.modal-box label { display: block; font-size: 12px; color: #888; margin: 8px 0 3px; }
-.modal-box input[type=text], .modal-box input[type=range] { width: 100%; margin-bottom: 6px; }
-.modal-box input[type=text] {
-  padding: 8px; border: 1px solid #ddd; border-radius: 8px; font-size: 13px; outline: none;
-}
-.modal-box input[type=text]:focus { border-color: #B22222; }
-.modal-toggle {
-  display: flex; align-items: center; justify-content: space-between; padding: 6px 0;
-  font-size: 13px;
-}
-.modal-btn {
-  width: 100%; padding: 10px; background: #B22222; color: #fff; border: none;
-  border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 12px;
-}
-
-/* RESULT OVERLAY */
-.result-overlay {
-  display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5);
-  z-index: 180; align-items: center; justify-content: center;
-}
-.result-overlay.show { display: flex; }
-.result-card {
-  background: #fff; border-radius: 16px; padding: 20px; text-align: center;
-  width: 260px; box-shadow: 0 8px 30px rgba(0,0,0,.15);
-}
-.result-card .qr { width: 160px; height: 160px; margin: 0 auto 8px; background: #f8f8f8; border-radius: 8px; }
-.result-card .big-num { font-size: 44px; font-weight: 800; color: #B22222; line-height: 1.1; }
-.result-card .big-type { font-size: 13px; color: #999; margin: 2px 0; }
-.result-card .big-time { font-size: 12px; color: #aaa; margin-bottom: 10px; }
-.result-card .close-btn {
-  padding: 6px 20px; border-radius: 8px; border: none; background: #B22222;
-  color: #fff; font-size: 13px; cursor: pointer;
-}
-.screenshot-hint { font-size: 10px; color: #B22222; margin-top: 4px; }
-
-/* TOAST */
-.toast {
-  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-  background: #333; color: #fff; padding: 8px 20px; border-radius: 20px;
-  font-size: 13px; z-index: 999; opacity: 0; transition: opacity .3s;
-  pointer-events: none;
-}
-.toast.show { opacity: 1; }
-
-/* Responsive */
-@media(min-width:768px) {
-  .people-row button { min-width: 42px; height: 42px; font-size: 17px; }
-  .queue-num { font-size: 32px; }
-  .main-scroll { max-width: 600px; margin: 0 auto; }
-}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow-x:hidden}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:#f5f5f5;color:#2C2C2C;font-size:14px;display:flex;flex-direction:column;min-height:100vh}
+.hdr{background:linear-gradient(135deg,#B22222,#8B0000);color:#fff;padding:6px 12px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.15)}
+.hdr h1{font-size:15px;font-weight:700}
+.hdr .sub{font-size:11px;opacity:.85;margin-top:1px}
+.hdr .hbtns button{background:rgba(255,255,255,.15);border:none;color:#fff;width:32px;height:32px;border-radius:8px;font-size:16px;cursor:pointer}
+.pb-wrap{padding:6px 8px;background:#fff;border-bottom:1px solid #eee;position:sticky;top:44px;z-index:99}
+.pb-lbl{font-size:10px;color:#999;text-align:center}
+.pb-row{display:flex;flex-wrap:wrap;gap:4px;align-items:center;justify-content:center;margin-top:4px}
+.pb-row button{min-width:34px;height:34px;border-radius:8px;border:2px solid #B22222;background:#fff;color:#B22222;font-size:14px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.pb-row button:active{background:#B22222;color:#fff}
+.pb-row input{width:48px;height:34px;border-radius:8px;border:2px solid #ccc;text-align:center;font-size:14px;font-weight:700;outline:none}
+.main{flex:1;overflow-y:auto;padding:8px;-webkit-overflow-scrolling:touch}
+.sec{margin-bottom:10px}
+.sec-tt{font-size:11px;font-weight:700;color:#888;padding:4px 2px 6px}
+.qi{display:flex;align-items:center;padding:8px 10px;background:#fff;border-radius:8px;margin-bottom:4px;gap:8px;box-shadow:0 1px 2px rgba(0,0,0,.04);border-left:3px solid #B22222}
+.qi.skipped{border-left-color:#ccc;opacity:.6}
+.qi .num{font-size:24px;font-weight:800;color:#B22222;min-width:38px;text-align:center;line-height:1}
+.skipped .num{color:#999}
+.qi .inf{flex:1;min-width:0}
+.qi .inf .ppl{font-size:14px;font-weight:700}
+.qi .inf .wait{font-size:10px;color:#999;margin-top:1px}
+.qi .acts{display:flex;gap:3px;flex-shrink:0;flex-wrap:wrap}
+.qi .acts button{padding:5px 8px;border-radius:6px;border:none;font-size:10px;font-weight:600;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.b-call{background:#B22222;color:#fff}.b-call:active{background:#8B0000}
+.b-skip{background:#E65100;color:#fff}.b-skip:active{background:#BF360C}
+.b-seat{background:#2E7D32;color:#fff}.b-seat:active{background:#1B5E20}
+.b-cnl{background:#eee;color:#666}.b-cnl:active{background:#ddd}
+.empty{text-align:center;color:#ccc;padding:20px;font-size:12px}
+.tab table{width:100%;border-collapse:collapse;font-size:11px;background:#fff;border-radius:8px;overflow:hidden}
+.tab th{background:#f9f9f9;color:#888;padding:5px 3px;font-weight:400}
+.tab td{padding:4px 3px;text-align:center;border-bottom:1px solid #f5f5f5}
+.tab td:first-child{font-weight:700;color:#B22222}
+.tab .rbtn{padding:3px 7px;font-size:10px;border:1px solid #ddd;background:#fff;border-radius:4px;cursor:pointer}
+.mod{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;align-items:center;justify-content:center}
+.mod.show{display:flex}
+.mod-box{background:#fff;width:90%;max-width:360px;border-radius:14px;padding:20px;max-height:85vh;overflow-y:auto}
+.mod-box h3{font-size:16px;margin-bottom:12px}
+.mod-box label{display:block;font-size:11px;color:#888;margin:6px 0 2px}
+.mod-box input[type=text],.mod-box select{width:100%}
+.mod-box input[type=text]{padding:8px;border:1px solid #ddd;border-radius:8px;font-size:13px;outline:none}
+.mod-box select{padding:8px;border:1px solid #ddd;border-radius:8px;font-size:13px;background:#fff}
+.mod-tog{display:flex;align-items:center;justify-content:space-between;padding:6px 0;font-size:13px}
+.mod-save{width:100%;padding:10px;background:#B22222;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;margin-top:12px}
+.rov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:180;align-items:center;justify-content:center}
+.rov.show{display:flex}
+.rcard{background:#fff;border-radius:16px;padding:20px;text-align:center;width:260px;box-shadow:0 8px 30px rgba(0,0,0,.15)}
+.rcard .qr{width:150px;height:150px;margin:0 auto 6px;background:#f8f8f8;border-radius:8px}
+.rcard .bnum{font-size:42px;font-weight:800;color:#B22222;line-height:1.1}
+.rcard .btype{font-size:12px;color:#999;margin:2px 0}
+.rcard .btime{font-size:11px;color:#aaa;margin-bottom:8px}
+.rcard .close-btn{padding:6px 20px;border-radius:8px;border:none;background:#B22222;color:#fff;font-size:13px;cursor:pointer}
+.rcard .hint{font-size:10px;color:#B22222;margin-top:4px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:8px 20px;border-radius:20px;font-size:13px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+@media(min-width:768px){.main{max-width:600px;margin:0 auto}.pb-row button{min-width:40px;height:40px;font-size:16px}}
 </style>
 </head>
 <body>
 
-<!-- Header -->
-<div class="header">
-  <div>
-    <h1>湘阁里辣 · 等位</h1>
-    <div class="sub" id="storeLabel">加载中...</div>
-  </div>
-  <div class="btns">
-    <button onclick="showSettings()" title="设置">⚙️</button>
-    <button onclick="toggleView()" id="viewBtn" title="切换视图">🔀</button>
-  </div>
+<div class="hdr"><div><h1>湘阁里辣 · 等位</h1><div class="sub" id="storeLabel">加载中...</div></div><div class="hbtns"><button onclick="showSettings()">⚙️</button></div></div>
+
+<div class="pb-wrap"><div class="pb-lbl">👇 点人数取号（自动匹配号段：1-2→A · 3-4→B · 5+→C）</div><div class="pb-row" id="pRow"></div></div>
+
+<div class="main" id="mainScroll">
+  <div class="sec"><div class="sec-tt">🟢 等位中</div><div id="wList"></div></div>
+  <div class="sec" id="skipSec" style="display:none"><div class="sec-tt">⏭️ 已过号</div><div id="sList"></div></div>
+  <div class="sec tab"><div class="sec-tt">📋 今日记录</div><div style="overflow-x:auto"><table><thead><tr><th>号数</th><th>人数</th><th>状态</th><th>操作</th></tr></thead><tbody id="hBody"></tbody></table></div></div>
 </div>
 
-<!-- Quick Take -->
-<div class="quick-take">
-  <div class="label">👇 点人数直接取号</div>
-  <div class="people-row" id="peopleRow">
-    <!-- JS生成1-10按钮 -->
-  </div>
-</div>
+<div class="mod" id="setMod" onclick="if(event.target===this)closeSettings()">
+<div class="mod-box">
+<h3>⚙️ 叫号设置</h3>
+<label>叫号文字（用 {{prefix}}{{number}} 占位）</label>
+<input type="text" id="callTpl" placeholder="{{prefix}}{{number}}，湘阁里辣请您就餐啦！">
+<label>语音音色</label>
+<select id="voiceSel"><option value="0">女声（默认）</option><option value="1">温柔女声</option><option value="2">沉稳男声</option></select>
+<label>语速: <span id="rateV">0.9</span></label>
+<input type="range" id="spRate" min="0.5" max="2.0" step="0.1" value="0.9" oninput="document.getElementById('rateV').textContent=this.value">
+<div class="mod-tog"><span>取号后显示二维码</span><input type="checkbox" id="shQr" checked></div>
+<div class="mod-tog"><span>取号后自动打印</span><input type="checkbox" id="autoPrt"></div>
+<button class="mod-save" onclick="saveSettings()">💾 保存设置</button>
+</div></div>
 
-<!-- Main Scroll -->
-<div class="main-scroll" id="mainScroll">
-  <!-- 等位中 -->
-  <div class="section">
-    <div class="section-title">🟢 等位中</div>
-    <div id="waitingList"></div>
-  </div>
-
-  <!-- 过号（可收起） -->
-  <div class="section" id="skippedSection" style="display:none">
-    <div class="section-title">⏭️ 已过号</div>
-    <div id="skippedList"></div>
-  </div>
-
-  <!-- 今日记录 -->
-  <div class="section history">
-    <div class="section-title">📋 今日记录</div>
-    <div style="overflow-x:auto;">
-      <table>
-        <thead><tr><th>号数</th><th>人数</th><th>状态</th><th>操作</th></tr></thead>
-        <tbody id="historyBody"></tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-<!-- Settings -->
-<div class="modal-overlay" id="settingsOverlay" onclick="if(event.target===this)closeSettings()">
-  <div class="modal-box">
-    <h3>⚙️ 叫号设置</h3>
-    <label>叫号语音文字（{{number}}=号数 {{type}}=区号）</label>
-    <input type="text" id="callText" placeholder="{{type}}，{{number}}号，请到前台就餐">
-    <label>语速: <span id="rateLabel">0.9</span></label>
-    <input type="range" id="speechRate" min="0.5" max="2.0" step="0.1" value="0.9" oninput="document.getElementById('rateLabel').textContent=this.value">
-    <div class="modal-toggle">
-      <span>取号后显示二维码</span>
-      <input type="checkbox" id="showQrToggle" checked>
-    </div>
-    <div class="modal-toggle">
-      <span>取号后自动打印</span>
-      <input type="checkbox" id="autoPrintToggle">
-    </div>
-    <button class="modal-btn" onclick="saveSettings()">💾 保存设置</button>
-  </div>
-</div>
-
-<!-- Result overlay -->
-<div class="result-overlay" id="resultOverlay" onclick="if(event.target===this)closeResult()">
-  <div class="result-card">
-    <img class="qr" id="qrImg" src="" alt="QR">
-    <div class="big-num" id="resultNum"></div>
-    <div class="big-type" id="resultType"></div>
-    <div class="big-time" id="resultTime"></div>
-    <div class="screenshot-hint">📸 请截图保存</div>
-    <button class="close-btn" onclick="closeResult()">关闭</button>
-  </div>
-</div>
+<div class="rov" id="resOv" onclick="if(event.target===this)closeRes()">
+<div class="rcard"><img class="qr" id="qrImg" src=""><div class="bnum" id="resNum"></div><div class="btype" id="resType"></div><div class="btime" id="resTime"></div><div class="hint">📸 请顾客截图保存</div><button class="close-btn" onclick="closeRes()">关闭</button></div></div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// ── 状态 ──
-const S = { token:'', store:'', storeName:'', queues:[], settings:{}, viewMode:'default' };
+const S={token:'',store:'',storeName:'',queues:[],stg:{}};
 
-// ── 初始化 ──
-document.addEventListener('DOMContentLoaded', async () => {
-  genPeopleBtns();
-  loadSettingsLocal();
-  await autoLogin();
-  connectSSE();
-  await loadAll();
-  setInterval(updateWaitTimes, 5000);
-});
-
-function genPeopleBtns() {
-  const row = document.getElementById('peopleRow');
-  let html = '';
-  for (let i = 1; i <= 10; i++) html += `<button onclick="takeNumber(${i})">${i}</button>`;
-  html += '<input type="number" id="bigPeople" placeholder="10+" min="11" max="99" onkeydown="if(event.key===\'Enter\')takeNumber(parseInt(this.value))">';
-  row.innerHTML = html;
-}
-
-// ── 登录 ──
-async function autoLogin() {
-  try {
-    const r = await fetch('/api/login', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:'xgll2122',password:'2122'}) });
-    const d = await r.json();
-    S.token = d.token; S.store = d.store; S.storeName = d.storeName;
-    document.getElementById('storeLabel').textContent = d.storeName;
-  } catch(e) { document.getElementById('storeLabel').textContent = '❌ 连接失败'; }
-}
-
-// ── SSE ──
-function connectSSE() {
-  const es = new EventSource('/api/events');
-  es.addEventListener('queue_update', e => {
-    try {
-      const d = JSON.parse(e.data);
-      if (d.storeId !== S.store) return;
-      loadAll();
-    } catch(_) {}
+// Init
+(async()=>{
+  genBtns();
+  ['callTpl','voiceSel','spRate','shQr','autoPrt'].forEach(id=>{
+    document.getElementById(id).addEventListener('change',()=>{});
   });
-  es.onerror = () => { es.close(); setTimeout(connectSSE, 5000); };
+  loadStg();
+  await login();
+  SSE();
+  await load();
+  setInterval(upWait,10000);
+})();
+
+function genBtns(){
+  let h='';
+  for(let i=1;i<=10;i++) h+=`<button onclick="take(${i})">${i}</button>`;
+  h+='<input type="number" id="bigP" placeholder="10+" min="11" max="99" onkeydown="if(event.key===\'Enter\')take(parseInt(this.value))">';
+  document.getElementById('pRow').innerHTML=h;
 }
 
-// ── 数据加载 ──
-async function loadAll() {
-  try {
-    const r = await fetch(`/api/store/${S.store}/queue`, { headers:{'Authorization':'Bearer '+S.token} });
-    if (!r.ok) return;
-    S.queues = await r.json();
-    render();
-  } catch(_) {}
+async function login(){
+  try{
+    const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:'xgll2122',password:'2122'})});
+    const d=await r.json();
+    S.token=d.token;S.store=d.store;S.storeName=d.storeName;
+    document.getElementById('storeLabel').textContent=d.storeName;
+  }catch(e){document.getElementById('storeLabel').textContent='连接失败';}
 }
 
-// ── 渲染 ──
-function render() {
-  renderWaiting();
-  renderSkipped();
-  renderHistory();
+function SSE(){
+  const es=new EventSource('/api/events');
+  es.addEventListener('queue_update',e=>{
+    try{const d=JSON.parse(e.data);if(d.storeId===S.store)load();}catch(_){}
+  });
+  es.onerror=()=>{es.close();setTimeout(SSE,5000)};
 }
 
-function renderWaiting() {
-  const items = S.queues.filter(q => q.status === 'waiting');
-  const list = document.getElementById('waitingList');
-  if (!items.length) { list.innerHTML = '<div class="empty-hint">📭 暂无排队</div>'; return; }
-  list.innerHTML = items.map(q => `
-    <div class="queue-item">
-      <div class="queue-num">${q.queue_number}</div>
-      <div class="queue-info">
-        <div class="ppl">${q.people}人${q.phone?' <span class="phone">📞'+q.phone+'</span>':''}</div>
-        <div class="wait" data-ts="${q.created_at}">⏱ 排队中...</div>
-      </div>
-      <div class="queue-acts">
-        <button class="btn-call" onclick="callQueue('${q.id}')">📣 叫号</button>
-        <button class="btn-cnl" onclick="cancelQueue('${q.id}')">撤号</button>
-      </div>
-    </div>
-  `).join('');
+async function load(){
+  try{
+    const r=await fetch(`/api/store/${S.store}/queue`,{headers:{'Authorization':'Bearer '+S.token}});
+    if(!r.ok)return;S.queues=await r.json();render();
+  }catch(_){}
 }
 
-function renderSkipped() {
-  const items = S.queues.filter(q => q.status === 'skipped');
-  const sec = document.getElementById('skippedSection');
-  if (!items.length) { sec.style.display = 'none'; return; }
-  sec.style.display = '';
-  document.getElementById('skippedList').innerHTML = items.map(q => `
-    <div class="queue-item skipped">
-      <div class="queue-num">${q.queue_number}</div>
-      <div class="queue-info"><div class="ppl">${q.people}人</div></div>
-    </div>
-  `).join('');
+function render(){
+  renderW(); renderS(); renderH();
 }
 
-function renderHistory() {
-  const statusMap = { waiting:'等位中', called:'已叫号', seated:'已入座', skipped:'已过号', cancelled:'已取消' };
-  document.getElementById('historyBody').innerHTML = S.queues.slice().reverse().map(q => `
-    <tr>
-      <td>${q.queue_number}</td>
-      <td>${q.people}人</td>
-      <td>${statusMap[q.status]||q.status}</td>
-      <td>${q.status==='waiting' ? `<button class="row-btn" onclick="cancelQueue('${q.id}')">撤号</button>` : ''}</td>
-    </tr>
-  `).join('');
+function renderW(){
+  const items=S.queues.filter(q=>q.status==='waiting');
+  const el=document.getElementById('wList');
+  if(!items.length){el.innerHTML='<div class="empty">📭 暂无排队</div>';return;}
+  el.innerHTML=items.map(q=>`
+    <div class="qi"><div class="num">${q.queue_number}</div>
+    <div class="inf"><div class="ppl">${q.people}人${q.phone?' 📞'+q.phone:''}</div>
+    <div class="wait" data-ts="${q.created_at}">⏱ 排队中...</div></div>
+    <div class="acts">
+      <button class="b-call" onclick="doCall('${q.id}')">📣叫号</button>
+      <button class="b-skip" onclick="doSkip('${q.id}')">过号</button>
+      <button class="b-seat" onclick="doSeat('${q.id}')">入座</button>
+    </div></div>`).join('');
 }
 
-// ── 取号 ──
-async function takeNumber(people) {
-  if (!people || people < 1) return;
-  try {
-    const r = await fetch(`/api/store/${S.store}/queue`, {
-      method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+S.token},
-      body:JSON.stringify({ people })
-    });
-    const d = await r.json();
-    if (!r.ok) { toast(d.error||'取号失败'); return; }
-
-    if (S.settings.showQr !== false) {
-      showResult(d);
-    } else {
-      toast(`取号成功: ${d.queue_number}号`);
-    }
-
-    if (S.settings.autoPrint) autoPrintTicket(d);
-
-    document.getElementById('bigPeople').value = '';
-    await loadAll();
-  } catch(e) { toast('取号失败'); }
+function renderS(){
+  const items=S.queues.filter(q=>q.status==='skipped');
+  const sec=document.getElementById('skipSec');
+  if(!items.length){sec.style.display='none';return;}
+  sec.style.display='';
+  document.getElementById('sList').innerHTML=items.map(q=>`
+    <div class="qi skipped"><div class="num">${q.queue_number}</div>
+    <div class="inf"><div class="ppl">${q.people}人</div></div>
+    <div class="acts"><button class="b-cnl" onclick="doCancel('${q.id}')">撤号</button></div></div>`).join('');
 }
 
-function showResult(record) {
-  const url = `${location.origin}/scan.html?store=${S.store}`;
-  document.getElementById('qrImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(url)}`;
-  document.getElementById('resultNum').textContent = record.queue_number;
-  const typeMap = { A:'A区 · 1人', B:'B区 · 2-4人', C:'C区 · 5人以上' };
-  document.getElementById('resultType').textContent = typeMap[record.type] || '';
-  document.getElementById('resultTime').textContent = '取号: ' + new Date(record.created_at).toLocaleString('zh-CN', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  document.getElementById('resultOverlay').classList.add('show');
+function renderH(){
+  const sm={waiting:'等位中',called:'已叫号',seated:'已入座',skipped:'已过号',cancelled:'已取消'};
+  document.getElementById('hBody').innerHTML=S.queues.slice().reverse().map(q=>`
+    <tr><td>${q.queue_number}</td><td>${q.people}人</td><td>${sm[q.status]||q.status}</td>
+    <td>${q.status==='waiting'?`<button class="rbtn" onclick="doCancel('${q.id}')">撤号</button>`:''}</td></tr>`).join('');
 }
 
-function closeResult() { document.getElementById('resultOverlay').classList.remove('show'); }
+function typeLabel(t){return{A:'1-2人',B:'3-4人',C:'5人以上'}[t]||t;}
+function voiceLabel(t){return{A:'A',B:'B',C:'C'}[t]||t;}
 
-// ── 叫号 ──
-async function callQueue(id) {
-  window.speechSynthesis && window.speechSynthesis.cancel();
-  try {
-    const r = await fetch(`/api/store/${S.store}/queue/${id}/call`, {
-      method:'POST', headers:{'Authorization':'Bearer '+S.token}
-    });
-    const d = await r.json();
-    if (!r.ok) { toast(d.error||'叫号失败'); return; }
-
-    const typeMap = { A:'A区1人', B:'B区2至4人', C:'C区5人以上' };
-    const tmpl = S.settings.callText || '{{type}}，{{number}}号，请到前台就餐';
-    const text = tmpl.replace('{{type}}', typeMap[d.type]||'').replace('{{number}}', d.queue_number);
-    speakRepeat(text, S.settings.speechRate||0.9);
-
-    await loadAll();
-  } catch(e) { toast('叫号失败'); }
+async function take(people){
+  if(!people||people<1)return;
+  try{
+    const r=await fetch(`/api/store/${S.store}/queue`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+S.token},body:JSON.stringify({people})});
+    const d=await r.json();
+    if(!r.ok){toast(d.error||'失败');return;}
+    if(S.stg.showQr!==false)showRes(d);
+    else toast('取号: '+d.queue_number+'号');
+    if(S.stg.autoPrint)autoP(d);
+    document.getElementById('bigP').value='';
+    await load();
+  }catch(e){toast('取号失败');}
 }
 
-function speakRepeat(text, rate) {
-  if (!window.speechSynthesis) return;
-  function utter(i) {
-    if (i >= 5) return;
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang='zh-CN'; u.rate=parseFloat(rate); u.pitch=1.1; u.volume=1;
-    u.onend = () => utter(i+1);
-    window.speechSynthesis.speak(u);
-  }
-  utter(0);
+function showRes(r){
+  document.getElementById('qrImg').src=`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(location.origin+'/s.html?n='+r.queue_number+'&t='+r.type+'&tm='+encodeURIComponent(new Date(r.created_at).toLocaleString('zh-CN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}))+'&s='+encodeURIComponent(S.storeName))}`;
+  document.getElementById('resNum').textContent=r.queue_number;
+  document.getElementById('resType').textContent=typeLabel(r.type);
+  document.getElementById('resTime').textContent='取号: '+new Date(r.created_at).toLocaleString('zh-CN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  document.getElementById('resOv').classList.add('show');
+}
+function closeRes(){document.getElementById('resOv').classList.remove('show');}
+
+async function doCall(id){
+  window.speechSynthesis&&window.speechSynthesis.cancel();
+  try{
+    const r=await fetch(`/api/store/${S.store}/queue/${id}/call`,{method:'POST',headers:{'Authorization':'Bearer '+S.token}});
+    const d=await r.json();
+    if(!r.ok){toast(d.error||'失败');return;}
+    const prefix=voiceLabel(d.type);
+    const tpl=S.stg.callTpl||'{{prefix}}{{number}}，湘阁里辣请您就餐啦！';
+    const txt=tpl.replace('{{prefix}}',prefix).replace('{{number}}',d.queue_number);
+    speak(txt);
+    await load();
+  }catch(e){toast('叫号失败');}
 }
 
-// ── 撤号 ──
-async function cancelQueue(id) {
-  if (!confirm('确认撤销此排队？')) return;
-  try {
-    await fetch(`/api/store/${S.store}/queue/${id}/cancel`, {
-      method:'POST', headers:{'Authorization':'Bearer '+S.token}
-    });
-    await loadAll();
-  } catch(_) {}
+function speak(text){
+  if(!window.speechSynthesis)return;
+  const vc=[{p:1.2,r:1},{p:1.0,r:0.95},{p:0.75,r:0.85}][parseInt(S.stg.voice)||0];
+  const rt=S.stg.speechRate||0.9;
+  function u(i){if(i>=5)return;const ut=new SpeechSynthesisUtterance(text);ut.lang='zh-CN';ut.rate=rt;ut.pitch=vc.p;ut.volume=1;ut.onend=()=>u(i+1);window.speechSynthesis.speak(ut);}
+  u(0);
 }
 
-// ── 设置 ──
-function loadSettingsLocal() {
-  const d = JSON.parse(localStorage.getItem('qs')||'{}');
-  S.settings = {
-    callText: d.callText || '{{type}}，{{number}}号，请到前台就餐',
-    speechRate: d.speechRate || 0.9,
-    showQr: d.showQr !== false,
-    autoPrint: d.autoPrint === true
-  };
-  document.getElementById('callText').value = S.settings.callText;
-  document.getElementById('speechRate').value = S.settings.speechRate;
-  document.getElementById('rateLabel').textContent = S.settings.speechRate;
-  document.getElementById('showQrToggle').checked = S.settings.showQr;
-  document.getElementById('autoPrintToggle').checked = S.settings.autoPrint;
+async function doSkip(id){
+  if(!confirm('确认将此号标记为过号？'))return;
+  try{await fetch(`/api/store/${S.store}/queue/${id}/skip`,{method:'POST',headers:{'Authorization':'Bearer '+S.token}});await load();}catch(e){toast('操作失败');}
 }
 
-function showSettings() {
-  loadSettingsLocal();
-  document.getElementById('settingsOverlay').classList.add('show');
+async function doSeat(id){
+  if(!confirm('确认入座？'))return;
+  try{await fetch(`/api/store/${S.store}/queue/${id}/seat`,{method:'POST',headers:{'Authorization':'Bearer '+S.token}});await load();}catch(e){toast('操作失败');}
 }
 
-function closeSettings() { document.getElementById('settingsOverlay').classList.remove('show'); }
-
-function saveSettings() {
-  S.settings = {
-    callText: document.getElementById('callText').value,
-    speechRate: parseFloat(document.getElementById('speechRate').value),
-    showQr: document.getElementById('showQrToggle').checked,
-    autoPrint: document.getElementById('autoPrintToggle').checked
-  };
-  localStorage.setItem('qs', JSON.stringify(S.settings));
-  closeSettings();
-  toast('✅ 设置已保存');
+async function doCancel(id){
+  if(!confirm('确认撤号？'))return;
+  try{await fetch(`/api/store/${S.store}/queue/${id}/cancel`,{method:'POST',headers:{'Authorization':'Bearer '+S.token}});await load();}catch(e){toast('操作失败');}
 }
 
-// ── 视图切换 ──
-function toggleView() {
-  // 暂简化：切换过号栏显隐
-  const sec = document.getElementById('skippedSection');
-  sec.style.display = sec.style.display === 'none' ? '' : 'none';
+function loadStg(){
+  const d=JSON.parse(localStorage.getItem('qs')||'{}');
+  S.stg={callTpl:d.callTpl||'{{prefix}}{{number}}，湘阁里辣请您就餐啦！',voice:d.voice||'0',speechRate:d.speechRate||0.9,showQr:d.showQr!==false,autoPrint:d.autoPrint===true};
+  document.getElementById('callTpl').value=S.stg.callTpl;
+  document.getElementById('voiceSel').value=S.stg.voice;
+  document.getElementById('spRate').value=S.stg.speechRate;
+  document.getElementById('rateV').textContent=S.stg.speechRate;
+  document.getElementById('shQr').checked=S.stg.showQr;
+  document.getElementById('autoPrt').checked=S.stg.autoPrint;
 }
 
-// ── 等待时间更新 ──
-function updateWaitTimes() {
-  document.querySelectorAll('.wait[data-ts]').forEach(el => {
-    const created = new Date(el.dataset.ts);
-    const min = Math.floor((Date.now() - created) / 60000);
-    el.textContent = `⏱ 已排${min}分钟`;
+function showSettings(){loadStg();document.getElementById('setMod').classList.add('show');}
+function closeSettings(){document.getElementById('setMod').classList.remove('show');}
+function saveSettings(){
+  S.stg={callTpl:document.getElementById('callTpl').value,voice:document.getElementById('voiceSel').value,speechRate:parseFloat(document.getElementById('spRate').value),showQr:document.getElementById('shQr').checked,autoPrint:document.getElementById('autoPrt').checked};
+  localStorage.setItem('qs',JSON.stringify(S.stg));
+  closeSettings();toast('设置已保存');
+}
+
+function upWait(){
+  document.querySelectorAll('.wait[data-ts]').forEach(el=>{
+    const m=Math.floor((Date.now()-new Date(el.dataset.ts))/60000);
+    el.textContent='⏱ 已排'+m+'分钟';
   });
 }
 
-// ── Toast ──
-let _t;
-function toast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg; el.classList.add('show');
-  clearTimeout(_t); _t = setTimeout(() => el.classList.remove('show'), 2000);
-}
-
-// ── 蓝牙打印占位 ──
-function autoPrintTicket(d) { /* 预留 */ }
+let _tt;
+function toast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>e.classList.remove('show'),2000);}
+function autoP(d){}
 </script>
 </body>
 </html>

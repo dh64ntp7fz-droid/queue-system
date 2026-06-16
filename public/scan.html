@@ -124,8 +124,8 @@ function selectPeople(n) {
   else document.getElementById('customPpl').value = n||'';
 
   const preview = document.getElementById('typePreview');
-  if (n === 1) { preview.textContent = '🏷️ A区 · 1人'; preview.style.background='#E3F2FD'; preview.style.color='#1565C0'; }
-  else if (n <= 4 && n >= 2) { preview.textContent = '🏷️ B区 · 2-4人'; preview.style.background='#FFF3E0'; preview.style.color='#E65100'; }
+  if (n === 1 || n === 2) { preview.textContent = '🏷️ A区 · 1-2人'; preview.style.background='#E3F2FD'; preview.style.color='#1565C0'; }
+  else if (n >= 3 && n <= 4) { preview.textContent = '🏷️ B区 · 3-4人'; preview.style.background='#FFF3E0'; preview.style.color='#E65100'; }
   else if (n >= 5) { preview.textContent = '🏷️ C区 · 5人以上'; preview.style.background='#F3E5F5'; preview.style.color='#6A1B9A'; }
   else { preview.textContent = '🏷️ 自动分配'; preview.style.background='#f5f5f5'; preview.style.color='#999'; }
 }
@@ -145,7 +145,7 @@ async function doTake() {
     if (!r.ok) { toast(d.error||'取号失败'); return; }
 
     // 显示结果
-    const typeMap = { A:'A区 · 1人', B:'B区 · 2-4人', C:'C区 · 5人以上' };
+    const typeMap = { A:'A区 · 1-2人', B:'B区 · 3-4人', C:'C区 · 5人以上' };
     document.getElementById('resNum').textContent = d.queue_number;
     document.getElementById('resType').textContent = typeMap[d.type] || '';
     document.getElementById('resTime').textContent = '取号: ' + new Date(d.created_at).toLocaleString('zh-CN', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
