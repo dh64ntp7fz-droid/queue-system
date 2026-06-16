@@ -129,8 +129,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
   <div class="hbtns"><button onclick="showSettings()">⚙️</button></div>
 </div>
 
-<div class="pb-wrap"><div class="pb-row" id="pRow"></div></div>
-
 <div class="main" id="mainScroll">
 
   <!-- 三列等位区 -->
@@ -156,13 +154,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
   </div>
 
   <!-- 过号 -->
-  <div class="skip-sec" id="skipSec" style="display:none">
-    <div class="skip-hd">⏭️ 已过号</div>
-    <div class="skip-row" id="skipRow"></div>
+  <div class="hist-block" id="skipSec" style="display:none">
+    <div class="hist-tog" onclick="toggleSkip()"><span class="arr" id="skipArr">▶</span> ⏭️ 已过号 <span id="skipCnt" style="font-size:10px;color:#999;font-weight:400"></span></div>
+    <div class="hist-wrap" id="skipWrap"><div class="skip-row" id="skipRow" style="padding:8px 12px"></div></div>
   </div>
 
+  <!-- 快速取号 -->
+  <div class="pb-wrap" style="position:static;border:none;background:transparent;padding:0 0 10px 0"><div class="pb-row" id="pRow"></div></div>
+
   <!-- 历史 -->
-  <div class="hist-block">
+  <div class="hist-block" id="histBlock">
     <div class="hist-tog" onclick="toggleHist()"><span class="arr">▶</span> 📋 今日记录</div>
     <div class="hist-wrap" id="histWrap"><div style="overflow-x:auto"><table><thead><tr><th>号数</th><th>人数</th><th>状态</th><th>操作</th></tr></thead><tbody id="hBody"><tr><td colspan="4">加载中...</td></tr></tbody></table></div></div>
   </div>
@@ -175,8 +176,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
 <h3>⚙️ 叫号设置</h3>
 <label>叫号文字（{{number}} 代表号码）</label>
 <input type="text" id="callTpl" placeholder="{{number}}，湘阁里辣请您就餐啦！">
-<label>语音音色</label>
-<select id="voiceSel"><option value="0">女声（默认）</option><option value="1">温柔女声</option><option value="2">沉稳男声</option></select>
+<label>语音风格</label>
+<select id="voiceSel"><option value="0">标准女声</option><option value="1">清脆女声</option><option value="2">沉稳男声</option></select>
 <label>语速: <span id="rateV">0.9</span></label>
 <input type="range" id="spRate" min="0.5" max="2.0" step="0.1" value="0.9" oninput="document.getElementById('rateV').textContent=this.value">
 <div class="mod-tog"><span>取号后显示二维码</span><input type="checkbox" id="shQr" checked></div>
@@ -198,8 +199,14 @@ const S={token:"",store:"",storeName:"",queues:[],stg:{}};
 function genBtns(){
   var h="";
   for(var i=1;i<=10;i++) h+="<button onclick=take("+i+")>"+i+"</button>";
-  h+="<input type=number id=bigP placeholder=10+ min=11 max=99 onkeydown=\"if(event.key==='Enter')take(parseInt(this.value))\">";
+  h+="<input type=number id=bigP placeholder=10+ min=11 max=99>";
+  h+="<button onclick=takePlus() style=background:#B22222;color:#fff>取号</button>";
   document.getElementById("pRow").innerHTML=h;
+}
+
+function takePlus(){
+  var v=parseInt(document.getElementById("bigP").value);
+  if(v&&v>0)take(v);
 }
 
 async function login(retry){
@@ -282,6 +289,7 @@ function renderS(){
   var sec=document.getElementById("skipSec");
   if(!skipped.length){sec.style.display="none";return}
   sec.style.display="block";
+  document.getElementById("skipCnt").textContent="("+skipped.length+")";
   document.getElementById("skipRow").innerHTML=skipped.map(function(q){
     return '<div class=skip-chip>'+q.queue_number+' '+q.people+'人 <button onclick=doCancel("'+q.id+'") title=撤号>✕</button></div>';
   }).join("");
@@ -335,15 +343,21 @@ async function doCall(id){
 
 function speak(text){
   if(!window.speechSynthesis)return;
-  text=text.replace(/([ABC])(\d)/g,"$1 $2");
+  // 叮咚前缀+号码空格分离避免TTS读错
+  var fullText="叮咚~ "+text.replace(/([ABC])(\d)/g,"$1 $2")+"。请到前台用餐。";
   var voices=window.speechSynthesis.getVoices();
-  var vcMap={"0":"Tingting","1":"Sinji","2":"Meijia"};
-  var vcName=vcMap[S.stg.voice]||"Tingting";
-  var best=voices.find(function(v){return v.name.includes(vcName)&&v.lang.includes("zh")})||voices.find(function(v){return v.lang.includes("zh-CN")})||voices[0];
-  var rt=S.stg.speechRate||0.95;
+  // 优先选高品质中文语音 Ting-Ting (macOS增强版) > Tingting > 任意中文女声
+  var best=voices.find(function(v){return v.name==="Ting-Ting"&&v.lang.includes("zh")})||
+          voices.find(function(v){return v.name.includes("Tingting")&&v.lang.includes("zh")})||
+          voices.find(function(v){return v.lang.includes("zh-CN")})||
+          voices.find(function(v){return v.lang.includes("zh")});
+  // 根据语音风格调整音调: 0标准女声1.12 / 1清脆女声1.35 / 2沉稳0.95
+  var pitchMap={"0":1.12,"1":1.35,"2":0.95};
+  var pt=pitchMap[S.stg.voice]||1.12;
+  var rt=S.stg.speechRate||0.82;
   function u(i){if(i>=3)return;
-    var ut=new SpeechSynthesisUtterance(text);
-    ut.lang="zh-CN";ut.rate=rt;ut.pitch=1.05;ut.volume=1;
+    var ut=new SpeechSynthesisUtterance(fullText);
+    ut.lang="zh-CN";ut.rate=rt;ut.pitch=pt;ut.volume=1;
     if(best)ut.voice=best;
     ut.onend=function(){u(i+1)};
     window.speechSynthesis.speak(ut);
@@ -394,7 +408,13 @@ function upWait(){
 
 function toggleHist(){
   var w=document.getElementById("histWrap");
-  var t=document.querySelector(".hist-tog");
+  var t=document.querySelector("#histBlock .hist-tog");
+  w.classList.toggle("show");t.classList.toggle("open");
+}
+function toggleSkip(){
+  var w=document.getElementById("skipWrap");
+  var t=document.querySelector("#skipSec .hist-tog");
+  var a=document.getElementById("skipArr");
   w.classList.toggle("show");t.classList.toggle("open");
 }
 

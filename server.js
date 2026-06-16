@@ -284,7 +284,6 @@ app.post('/api/store/:storeId/queue/:id/call', async (req, res) => {
   const meta = await getStoreMeta(req.params.storeId);
   const { data: store } = await supabase.from('stores').select('name').eq('id', req.params.storeId).single();
   sendQueueCallSms(updated, store?.name || '');
-  sendQueueCallWecom(updated, store?.name || '', meta.wecom_webhook, meta.phone, meta.nav_url, meta.parking);
 
   res.json(updated);
 });
@@ -665,41 +664,6 @@ async function sendSms(phone, params) {
   });
 }
 
-// 叫号企微通知
-async function sendQueueCallWecom(record, storeName, webhookUrl, storePhone, navUrl, parking) {
-  const wu = webhookUrl || WECOM_WEBHOOK_URL;
-  if (!wu) return;
-
-  const now = new Date();
-  const month = now.getMonth() + 1;
-  const day = now.getDate();
-  const time = getTimeString();
-  const phoneDisplay = record.phone ? record.phone.slice(0, 3) + '****' + record.phone.slice(-4) : '无';
-  const typeLabel = getTypeName(record.type);
-
-  const navLine = navUrl ? '\n• [点击导航](' + navUrl + ')' : '';
-  const phoneLine = storePhone ? '\n• 服务电话:' + storePhone : '';
-
-  const content = `📣 **叫号提醒**\n\n【${storeName}】\n\n🔔 **${record.queue_number}号**(${typeLabel})，请到前台就餐!\n\n• 顾客:${record.name}\n• 人数:${record.people}人\n• 手机:${phoneDisplay}\n• 取号渠道:${record.created_by === 'scan' ? '顾客扫码' : '前台取号'}\n• 备注:${record.note || '无'}${phoneLine}${navLine}\n\n⚠️ 请尽快前往前台，超过3分钟将自动过号!`;
-
-  const body = JSON.stringify({
-    msgtype: 'markdown',
-    markdown: { content: `## <font color="warning">📣 叫号提醒</font>\n${content}` }
-  });
-
-  return new Promise((resolve) => {
-    try {
-      const u = new URL(wu);
-      const mod = u.protocol === 'https:' ? https : http;
-      const req = mod.request({
-        hostname: u.hostname, port: u.port, path: u.pathname + u.search,
-        method: 'POST', headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) }
-      }, (res) => { console.log(`📱 WeCom queue call → ${res.statusCode}`); resolve(); });
-      req.on('error', (e) => { console.error(`📱 WeCom失败:`, e.message); resolve(); });
-      req.write(body); req.end();
-    } catch(e) { console.error(`📱 WeCom错误:`, e.message); resolve(); }
-  });
-}
 
 // ============================================================
 // 启动
