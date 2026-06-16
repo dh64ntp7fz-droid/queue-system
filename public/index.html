@@ -382,46 +382,53 @@ async function doCall(id){
     var r=await fetch("/api/store/"+S.store+"/queue/"+id+"/call",{method:"POST",headers:{Authorization:"Bearer "+S.token}});
     var d=await r.json();
     if(!r.ok){toast(d.error||"失败");return}
-    var tpl=S.stg.callTpl||"{{number}}，湘阁里辣请您就餐啦！";
+    var tpl=S.stg.callTpl||"{{number}},湘阁里辣请您用餐了！";
     var txt=tpl.replace("{{number}}",d.queue_number);
-    speak(txt);
+    speak(txt,5);
     await load();
   }catch(e){toast("叫号失败")}
 }
 
-function speak(text){
+function speak(text,times){
+  times=times||1;
   if(!window.speechSynthesis)return;
-  // 分离英文部分和中文部分，分别用不同语音朗读
-  // 匹配开头的字母+数字（如 A39, B12, C5）
-  var m=text.match(/^([A-C]\s*\d+)[,\s]*(.*)/);
-  if(m){
-    // 英文部分用 en-US 语音念号码
-    var numPart=m[1].replace(/\s+/g," "); // "A 39"
-    var cnPart=m[2];                       // "湘阁里辣请您用餐了！"
-    speakEn(numPart);
-    setTimeout(function(){speakCn(cnPart)},800);
-  }else{
-    speakCn(text);
+  // A39 → A 3 9（数字逐位空格分开，防止TTS读成三十九）
+  text=text.replace(/([ABC])(\d+)/g,function(_,l,n){
+    return l+" "+n.split("").join(" ");
+  });
+  // 分离号码和中文，间隔0.3秒
+  var m=text.match(/^([A-C][\s\d]+)[,\s]*(.*)/);
+  if(!m){doSpeak(text,times);return}
+  var numPart=m[1];
+  var cnPart=m[2];
+  var repeat=0,cnt=times||1;
+  function loop(){
+    if(repeat>=cnt)return;
+    repeat++;
+    if(window.speechSynthesis)window.speechSynthesis.cancel();
+    var u1=new SpeechSynthesisUtterance(numPart);
+    u1.lang="zh-CN";u1.rate=0.75;u1.pitch=1.1;u1.volume=1;
+    u1.onend=function(){
+      setTimeout(function(){
+        var u2=new SpeechSynthesisUtterance(cnPart);
+        u2.lang="zh-CN";u2.rate=0.85;u2.pitch=1.15;u2.volume=1;
+        u2.onend=function(){setTimeout(loop,200)};
+        setVoice(u2);
+        window.speechSynthesis.speak(u2);
+      },300);
+    };
+    setVoice(u1);
+    window.speechSynthesis.speak(u1);
   }
+  loop();
 }
-function speakEn(t){
-  var ut=new SpeechSynthesisUtterance(t);
-  ut.lang="en-US";ut.rate=0.8;ut.pitch=1;ut.volume=1;
-  window.speechSynthesis.speak(ut);
-}
-function speakCn(t){
-  if(!t)return;
+function setVoice(ut){
   var voices=window.speechSynthesis.getVoices();
   var best=voices.find(function(v){return v.name==="Ting-Ting"&&v.lang.includes("zh")})||
           voices.find(function(v){return v.name.includes("Tingting")&&v.lang.includes("zh")})||
           voices.find(function(v){return v.lang.includes("zh-CN")})||
           voices.find(function(v){return v.lang.includes("zh")});
-  var pitchMap={"0":1.15,"1":1.40,"2":0.90,"3":1.25,"4":1.05};
-  var pt=pitchMap[S.stg.voice]||1.15;
-  var ut=new SpeechSynthesisUtterance(t);
-  ut.lang="zh-CN";ut.rate=0.85;ut.pitch=pt;ut.volume=1;
   if(best)ut.voice=best;
-  window.speechSynthesis.speak(ut);
 }
 
 async function doSkip(id){
