@@ -200,8 +200,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
 <h3>⚙️ 叫号设置</h3>
 <label>语音风格</label>
 <select id="voiceSel"><option value="0">🎵 情感女声（推荐）</option><option value="1">🍭 甜美清脆</option><option value="2">🎤 沉稳男声</option><option value="3">💞 温柔慢声</option><option value="4">🔊 自然标准</option></select>
-<label>语速: <span id="rateV">0.9</span></label>
-<input type="range" id="spRate" min="0.5" max="2.0" step="0.1" value="0.9" oninput="document.getElementById('rateV').textContent=this.value">
+<label>语速: <span id="rateV">1.0</span></label>
+<input type="range" id="spRate" min="0.5" max="2.0" step="0.1" value="1.0" oninput="document.getElementById('rateV').textContent=this.value">
 <div class="mod-tog"><span>取号后显示二维码</span><input type="checkbox" id="shQr" checked></div>
 <div class="mod-tog"><span>取号后自动打印</span><input type="checkbox" id="autoPrt"></div>
 <button class="mod-save" onclick="saveSettings()">💾 保存设置</button>
@@ -398,9 +398,9 @@ function speak(text,times){
     if(repeat>=cnt)return;
     repeat++;
     var ut=new SpeechSynthesisUtterance(text);
-    ut.lang="zh-CN";ut.rate=0.85;
-    var pitchMap={"0":1.0,"1":1.12,"2":0.92,"3":1.06,"4":1.0};
-    ut.pitch=pitchMap[S.stg.voice]||1.15;
+    ut.lang="zh-CN";ut.rate=S.stg.speechRate||1.0;
+    var pitchMap={"0":1.0,"1":1.1,"2":0.9,"3":1.05,"4":1.0};
+    ut.pitch=pitchMap[S.stg.voice]||1.0;
     var vv=window.speechSynthesis.getVoices();
     var v=vv.find(function(v){return v.name==="Ting-Ting"&&v.lang.includes("zh")})||
           vv.find(function(v){return v.name.includes("Tingting")&&v.lang.includes("zh")})||
@@ -429,7 +429,7 @@ async function doCancel(id){
 
 function loadStg(){
   var d=JSON.parse(localStorage.getItem("qs")||"{}");
-  S.stg={voice:d.voice||"0",speechRate:d.speechRate||0.85,showQr:d.showQr!==false,autoPrint:d.autoPrint===true};
+  S.stg={voice:d.voice||"0",speechRate:d.speechRate||1.0,showQr:d.showQr!==false,autoPrint:d.autoPrint===true};
   document.getElementById("voiceSel").value=S.stg.voice;
   document.getElementById("spRate").value=S.stg.speechRate;
   document.getElementById("rateV").textContent=S.stg.speechRate;
@@ -440,9 +440,11 @@ function loadStg(){
 function showSettings(){loadStg();document.getElementById("setMod").classList.add("show")}
 function closeSettings(){document.getElementById("setMod").classList.remove("show")}
 function saveSettings(){
-  S.stg={voice:document.getElementById("voiceSel").value,speechRate:parseFloat(document.getElementById("spRate").value),showQr:document.getElementById("shQr").checked,autoPrint:document.getElementById("autoPrt").checked};
-  localStorage.setItem("qs",JSON.stringify(S.stg));
-  closeSettings();toast("设置已保存");
+  try{
+    S.stg={voice:document.getElementById("voiceSel").value,speechRate:parseFloat(document.getElementById("spRate").value),showQr:document.getElementById("shQr").checked,autoPrint:document.getElementById("autoPrt").checked};
+    localStorage.setItem("qs",JSON.stringify(S.stg));
+    closeSettings();toast("✅ 设置已保存");
+  }catch(e){toast("❌ 保存失败:"+e.message)}
 }
 
 function upWait(){
