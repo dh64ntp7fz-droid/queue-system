@@ -391,24 +391,35 @@ async function doCall(id){
 
 function speak(text){
   if(!window.speechSynthesis)return;
-  // 字母+数字间加空格，防止TTS连读
-  text=text.replace(/([ABC])(\d+)/g,"$1 $2");
-
+  // 分离英文部分和中文部分，分别用不同语音朗读
+  // 匹配开头的字母+数字（如 A39, B12, C5）
+  var m=text.match(/^([A-C]\s*\d+)[,\s]*(.*)/);
+  if(m){
+    // 英文部分用 en-US 语音念号码
+    var numPart=m[1].replace(/\s+/g," "); // "A 39"
+    var cnPart=m[2];                       // "湘阁里辣请您用餐了！"
+    speakEn(numPart);
+    setTimeout(function(){speakCn(cnPart)},800);
+  }else{
+    speakCn(text);
+  }
+}
+function speakEn(t){
+  var ut=new SpeechSynthesisUtterance(t);
+  ut.lang="en-US";ut.rate=0.8;ut.pitch=1;ut.volume=1;
+  window.speechSynthesis.speak(ut);
+}
+function speakCn(t){
+  if(!t)return;
   var voices=window.speechSynthesis.getVoices();
   var best=voices.find(function(v){return v.name==="Ting-Ting"&&v.lang.includes("zh")})||
           voices.find(function(v){return v.name.includes("Tingting")&&v.lang.includes("zh")})||
-          voices.find(function(v){return v.name.includes("Yu-shu")&&v.lang.includes("zh")})||
-          voices.find(function(v){return v.name.includes("Xiaoxiao")&&v.lang.includes("zh")})||
-          voices.find(function(v){return v.name.includes("Yunxi")&&v.lang.includes("zh")})||
           voices.find(function(v){return v.lang.includes("zh-CN")})||
           voices.find(function(v){return v.lang.includes("zh")});
-
   var pitchMap={"0":1.15,"1":1.40,"2":0.90,"3":1.25,"4":1.05};
   var pt=pitchMap[S.stg.voice]||1.15;
-  var rt=S.stg.speechRate||0.85;
-
-  var ut=new SpeechSynthesisUtterance(text);
-  ut.lang="zh-CN";ut.rate=rt;ut.pitch=pt;ut.volume=1;
+  var ut=new SpeechSynthesisUtterance(t);
+  ut.lang="zh-CN";ut.rate=0.85;ut.pitch=pt;ut.volume=1;
   if(best)ut.voice=best;
   window.speechSynthesis.speak(ut);
 }
