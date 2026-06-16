@@ -190,7 +190,7 @@ app.post('/api/store/:storeId/queue', async (req, res) => {
   const queueType = getQueueType(people); // 根据人数自动分配 A/B/C
   const maxSeq = await getTodayMaxSeq(storeId, queueType);
   const seq = maxSeq + 1;
-  const queueNumber = String(seq); // 纯数字，不带前缀
+  const queueNumber = queueType + String(seq); // A1/B2/C3 格式
 
   const now = new Date().toISOString();
   const id = 'q_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -228,7 +228,7 @@ app.post('/api/store/:storeId/scan-queue', async (req, res) => {
   const queueType = getQueueType(people); // 根据人数自动分配 A/B/C
   const maxSeq = await getTodayMaxSeq(storeId, queueType);
   const seq = maxSeq + 1;
-  const queueNumber = String(seq); // 纯数字，不带前缀
+  const queueNumber = queueType + String(seq); // A1/B2/C3 格式
 
   const now = new Date().toISOString();
   const id = 'q_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);

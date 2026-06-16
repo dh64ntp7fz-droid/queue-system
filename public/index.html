@@ -79,8 +79,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
 <div class="mod" id="setMod" onclick="if(event.target===this)closeSettings()">
 <div class="mod-box">
 <h3>⚙️ 叫号设置</h3>
-<label>叫号文字（用 {{prefix}}{{number}} 占位）</label>
-<input type="text" id="callTpl" placeholder="{{prefix}}{{number}}，湘阁里辣请您就餐啦！">
+<label>叫号文字（用 {{number}} 占位）</label>
+<input type="text" id="callTpl" placeholder="{{number}}，湘阁里辣请您就餐啦！">
 <label>语音音色</label>
 <select id="voiceSel"><option value="0">女声（默认）</option><option value="1">温柔女声</option><option value="2">沉稳男声</option></select>
 <label>语速: <span id="rateV">0.9</span></label>
@@ -180,12 +180,6 @@ function renderH(){
 }
 
 function typeLabel(t){return{A:'1-2人',B:'3-4人',C:'5人以上'}[t]||t;}
-function voiceLabel(t){return{A:'A',B:'B',C:'C'}[t]||t;}
-
-async function take(people){
-  if(!people||people<1)return;
-  try{
-    const r=await fetch(`/api/store/${S.store}/queue`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+S.token},body:JSON.stringify({people})});
     const d=await r.json();
     if(!r.ok){toast(d.error||'失败');return;}
     if(S.stg.showQr!==false)showRes(d);
@@ -211,9 +205,8 @@ async function doCall(id){
     const r=await fetch(`/api/store/${S.store}/queue/${id}/call`,{method:'POST',headers:{'Authorization':'Bearer '+S.token}});
     const d=await r.json();
     if(!r.ok){toast(d.error||'失败');return;}
-    const prefix=voiceLabel(d.type);
-    const tpl=S.stg.callTpl||'{{prefix}}{{number}}，湘阁里辣请您就餐啦！';
-    const txt=tpl.replace('{{prefix}}',prefix).replace('{{number}}',d.queue_number);
+    const tpl=S.stg.callTpl||'{{number}}，湘阁里辣请您就餐啦！';
+    const txt=tpl.replace('{{number}}',d.queue_number);
     speak(txt);
     await load();
   }catch(e){toast('叫号失败');}
@@ -244,7 +237,7 @@ async function doCancel(id){
 
 function loadStg(){
   const d=JSON.parse(localStorage.getItem('qs')||'{}');
-  S.stg={callTpl:d.callTpl||'{{prefix}}{{number}}，湘阁里辣请您就餐啦！',voice:d.voice||'0',speechRate:d.speechRate||0.9,showQr:d.showQr!==false,autoPrint:d.autoPrint===true};
+  S.stg={callTpl:d.callTpl||'{{number}}，湘阁里辣请您就餐啦！',voice:d.voice||'0',speechRate:d.speechRate||0.9,showQr:d.showQr!==false,autoPrint:d.autoPrint===true};
   document.getElementById('callTpl').value=S.stg.callTpl;
   document.getElementById('voiceSel').value=S.stg.voice;
   document.getElementById('spRate').value=S.stg.speechRate;
