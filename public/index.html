@@ -3,11 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>湘阁里辣 · 等位叫号 v2.6</title>
+<title>湘阁里辣 · 等位叫号 v2.8</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%;overflow-x:hidden}
-body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:#f0f2f5;color:#2C2C2C;font-size:14px;display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:#f0f2f5;color:#2C2C2C;font-size:14px;display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;overflow:hidden}
+
+/* 登录页 */
+.login-page{position:fixed;inset:0;z-index:300;background:linear-gradient(180deg,#B22222 0%,#C62828 30%,#f0f2f5 30%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;transition:opacity .3s}
+.login-page.hide{opacity:0;pointer-events:none}
+.login-logo{padding:30px 0 24px;color:#fff;text-align:center}
+.login-logo .icon{font-size:40px;display:block;margin-bottom:4px}
+.login-logo h1{font-size:24px;font-weight:800;letter-spacing:6px}
+.login-logo .sub{font-size:11px;opacity:.65;margin-top:4px;letter-spacing:2px}
+.login-card{background:#fff;border-radius:16px;padding:28px 24px;width:100%;max-width:340px;box-shadow:0 4px 30px rgba(0,0,0,.1);text-align:center}
+.login-card label{display:block;font-size:12px;color:#888;text-align:left;margin:10px 0 4px}
+.login-card input{width:100%;padding:10px 12px;border:2px solid #e8e8e8;border-radius:10px;font-size:15px;outline:none;transition:border-color .2s}
+.login-card input:focus{border-color:#B22222}
+.login-card .err{color:#B22222;font-size:11px;margin-top:6px;display:none}
+.login-card .btn-login{width:100%;padding:12px;background:linear-gradient(135deg,#B22222,#8B0000);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-top:16px;letter-spacing:2px}
+.login-card .btn-login:active{opacity:.85}
+.login-card .btn-login.loading{opacity:.6;pointer-events:none}
+
 .hdr{background:linear-gradient(135deg,#B22222,#8B0000);color:#fff;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.15)}
 .hdr h1{font-size:16px;font-weight:700}
 .hdr .v{font-size:9px;opacity:.5}
@@ -116,8 +133,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
 </head>
 <body>
 
+<!-- 登录页 -->
+<div class="login-page" id="loginPage">
+  <div class="login-logo">
+    <span class="icon">🍜</span>
+    <h1>湘阁里辣</h1>
+    <div class="sub">等 位 叫 号 系 统</div>
+  </div>
+  <div class="login-card">
+    <label>用户名</label>
+    <input type="text" id="loginUser" value="xgll2122" placeholder="请输入用户名">
+    <label>密码</label>
+    <input type="password" id="loginPass" value="2122" placeholder="请输入密码">
+    <div class="err" id="loginErr"></div>
+    <button class="btn-login" id="btnLogin" onclick="doLogin()">登 录</button>
+  </div>
+</div>
+
 <div class="hdr">
-  <div><h1>湘阁里辣 · 等位叫号 <span class="v">v2.6</span></h1><div class="sub" id="storeLabel">🔄 连接中...</div></div>
+  <div><h1>湘阁里辣 · 等位叫号 <span class="v">v2.8</span></h1><div class="sub" id="storeLabel">🔄 连接中...</div></div>
   <div class="hbtns"><button onclick="showSettings()">⚙️</button></div>
 </div>
 
@@ -177,7 +211,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
 <div class="toast" id="toast"></div>
 
 <script>
-console.log("queue-system v2.6 init");
+console.log("queue-system v2.8 init");
 
 const S={token:"",store:"",storeName:"",queues:[],stg:{}};
 
@@ -194,11 +228,43 @@ function takePlus(){
   if(v&&v>0)take(v);
 }
 
+async function doLogin(){
+  var btn=document.getElementById("btnLogin");
+  var errEl=document.getElementById("loginErr");
+  var user=document.getElementById("loginUser").value.trim()||"xgll2122";
+  var pass=document.getElementById("loginPass").value.trim()||"2122";
+  errEl.style.display="none";
+  btn.textContent="登录中...";btn.classList.add("loading");
+  try{
+    var r=await fetch("/api/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:user,password:pass})});
+    var d=await r.json();
+    if(!r.ok){errEl.textContent=d.error||"登录失败";errEl.style.display="block";btn.textContent="登 录";btn.classList.remove("loading");return}
+    console.log("login ok:",d.username,d.store);
+    S.token=d.token;
+    S.store=d.store.id||d.store;
+    S.storeName=d.store.name||d.store;
+    // 隐藏登录页，显示主界面
+    document.getElementById("loginPage").classList.add("hide");
+    document.getElementById("storeLabel").textContent=S.storeName;
+    genBtns();
+    await loadQueues();
+    startSSE();
+    setInterval(refreshWait,5000);
+    setInterval(function(){
+      if(S.autoPrint)autoPrint();
+    },10000);
+  }catch(e){
+    console.error("login fail:",e);
+    errEl.textContent="连接失败，请重试";errEl.style.display="block";
+    btn.textContent="登 录";btn.classList.remove("loading");
+  }
+}
+
 async function login(retry){
   retry=retry||0;
   var el=document.getElementById("storeLabel");
   try{
-    console.log("login v2.6 attempt",retry);
+    console.log("login v2.8 attempt",retry);
     var ctrl=new AbortController();
     var t=setTimeout(function(){ctrl.abort()},8000);
     var r=await fetch("/api/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:"xgll2122",password:"2122"}),signal:ctrl.signal});
@@ -401,15 +467,13 @@ function toast(m){var e=document.getElementById("toast");e.textContent=m;e.class
 function autoP(d){}
 
 // INIT
-console.log("starting v2.6 init...");
+console.log("starting v2.8 init...");
 genBtns();
 loadStg();
-login().then(function(){
-  SSE();
-  load().then(function(){console.log("initial load done")}).catch(function(e){console.error("init load error:",e)});
-}).catch(function(e){console.error("init login error:",e)});
-setInterval(upWait,10000);
-console.log("v2.6 init complete");
+// 登录页已显示，等用户点击登录按钮
+// 回车键触发登录
+document.getElementById("loginPass").addEventListener("keydown",function(e){if(e.key==="Enter")doLogin()});
+console.log("v2.8 init complete");
 </script>
 </body>
 </html>
