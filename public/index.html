@@ -389,9 +389,9 @@ async function doCall(id){
 function speak(text,times){
   times=times||1;
   if(!window.speechSynthesis)return;
-  // A39 → A, 4 1（逗号分隔字母，中文TTS把A当字母读）
+  // A39 → A 4 1（数字逐位空格，防合成）
   text=text.replace(/([ABC])(\d+)/g,function(_,l,n){
-    return l+", "+n.split("").join(" ");
+    return l+" "+n.split("").join(" ");
   });
   var repeat=0,cnt=times||1;
   function loop(){
@@ -399,7 +399,7 @@ function speak(text,times){
     repeat++;
     var ut=new SpeechSynthesisUtterance(text);
     ut.lang="zh-CN";ut.rate=0.85;
-    var pitchMap={"0":1.15,"1":1.40,"2":0.90,"3":1.25,"4":1.05};
+    var pitchMap={"0":1.0,"1":1.12,"2":0.92,"3":1.06,"4":1.0};
     ut.pitch=pitchMap[S.stg.voice]||1.15;
     var vv=window.speechSynthesis.getVoices();
     var v=vv.find(function(v){return v.name==="Ting-Ting"&&v.lang.includes("zh")})||
@@ -440,7 +440,7 @@ function loadStg(){
 function showSettings(){loadStg();document.getElementById("setMod").classList.add("show")}
 function closeSettings(){document.getElementById("setMod").classList.remove("show")}
 function saveSettings(){
-  S.stg={callTpl:document.getElementById("callTpl").value,voice:document.getElementById("voiceSel").value,speechRate:parseFloat(document.getElementById("spRate").value),showQr:document.getElementById("shQr").checked,autoPrint:document.getElementById("autoPrt").checked};
+  S.stg={voice:document.getElementById("voiceSel").value,speechRate:parseFloat(document.getElementById("spRate").value),showQr:document.getElementById("shQr").checked,autoPrint:document.getElementById("autoPrt").checked};
   localStorage.setItem("qs",JSON.stringify(S.stg));
   closeSettings();toast("设置已保存");
 }
