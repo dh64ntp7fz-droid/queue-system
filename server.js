@@ -63,7 +63,6 @@ app.use(express.json());
 // 静态文件：主管理页面重定向到 public/
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 app.use('/public', express.static(path.join(__dirname, 'public')));
-app.use(express.static(__dirname));
 
 // ── SSE 通知 ──
 function notifyAll(event, data) {

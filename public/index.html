@@ -111,17 +111,23 @@ function genBtns(){
   document.getElementById('pRow').innerHTML=h;
 }
 
-async function login(){
+async function login(retry=0){
+  const el=document.getElementById('storeLabel');
   try{
-    console.log('login attempt...');
-    const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:'xgll2122',password:'2122'})});
+    console.log('login v2.3 attempt',retry);
+    const ctrl=new AbortController();
+    const t=setTimeout(()=>ctrl.abort(),8000);
+    const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:'xgll2122',password:'2122'}),signal:ctrl.signal});
+    clearTimeout(t);
     const d=await r.json();
-    console.log('login result:',d.username,d.store);
+    console.log('login ok:',d.username,d.store);
     S.token=d.token;S.store=d.store;S.storeName=d.storeName;
-    document.getElementById('storeLabel').textContent=d.storeName||d.store||'✅已连接';
+    el.textContent=d.storeName||d.store||'✅已连接';
   }catch(e){
-    console.error('login failed:',e);
-    document.getElementById('storeLabel').textContent='❌ 连接失败';
+    console.error('login fail:',e.name,e.message);
+    if(retry<2){el.textContent='⏳ 重试中('+(retry+1)+')...';setTimeout(()=>login(retry+1),2000);}
+    else el.textContent='❌ 连接失败 点我重试';
+    el.style.cursor='pointer';el.onclick=()=>login(0);
   }
 }
 
