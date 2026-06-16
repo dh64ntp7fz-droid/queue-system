@@ -3,16 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>湘阁里辣 · 等位叫号</title>
+<title>湘阁里辣 · 等位叫号 v2.3</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%;overflow-x:hidden}
-body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:#f5f5f5;color:#2C2C2C;font-size:14px;display:flex;flex-direction:column;min-height:100vh}
-.hdr{background:linear-gradient(135deg,#B22222,#8B0000);color:#fff;padding:6px 12px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.15)}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:#f5f5f5;color:#2C2C2C;font-size:14px;display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}
+.hdr{background:linear-gradient(135deg,#B22222,#8B0000);color:#fff;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.15)}
 .hdr h1{font-size:15px;font-weight:700}
+.hdr .v{font-size:9px;opacity:.6}
 .hdr .sub{font-size:11px;opacity:.85;margin-top:1px}
 .hdr .hbtns button{background:rgba(255,255,255,.15);border:none;color:#fff;width:32px;height:32px;border-radius:8px;font-size:16px;cursor:pointer}
-.pb-wrap{padding:6px 8px;background:#fff;border-bottom:1px solid #eee;position:sticky;top:44px;z-index:99}
+.pb-wrap{padding:6px 8px;background:#fff;border-bottom:1px solid #eee;position:sticky;top:47px;z-index:99}
 .pb-lbl{font-size:10px;color:#999;text-align:center}
 .pb-row{display:flex;flex-wrap:wrap;gap:4px;align-items:center;justify-content:center;margin-top:4px}
 .pb-row button{min-width:34px;height:34px;border-radius:8px;border:2px solid #B22222;background:#fff;color:#B22222;font-size:14px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent}
@@ -66,20 +67,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
 </head>
 <body>
 
-<div class="hdr"><div><h1>湘阁里辣 · 等位</h1><div class="sub" id="storeLabel">加载中...</div></div><div class="hbtns"><button onclick="showSettings()">⚙️</button></div></div>
+<div class="hdr">
+  <div><h1>湘阁里辣 · 等位 <span class="v">v2.3</span></h1><div class="sub" id="storeLabel">🔄 连接中...</div></div>
+  <div class="hbtns"><button onclick="showSettings()">⚙️</button></div>
+</div>
 
-<div class="pb-wrap"><div class="pb-lbl">👇 点人数取号（自动匹配号段：1-2→A · 3-4→B · 5+→C）</div><div class="pb-row" id="pRow"></div></div>
+<div class="pb-wrap"><div class="pb-lbl">👇 点人数取号（1-2→A · 3-4→B · 5+→C）</div><div class="pb-row" id="pRow"></div></div>
 
 <div class="main" id="mainScroll">
-  <div class="sec"><div class="sec-tt">🟢 等位中</div><div id="wList"></div></div>
+  <div class="sec"><div class="sec-tt">🟢 等位中</div><div id="wList"><div class="empty">⏳ 加载中...</div></div></div>
   <div class="sec" id="skipSec" style="display:none"><div class="sec-tt">⏭️ 已过号</div><div id="sList"></div></div>
-  <div class="sec tab"><div class="sec-tt">📋 今日记录</div><div style="overflow-x:auto"><table><thead><tr><th>号数</th><th>人数</th><th>状态</th><th>操作</th></tr></thead><tbody id="hBody"></tbody></table></div></div>
+  <div class="sec tab"><div class="sec-tt">📋 今日记录</div><div style="overflow-x:auto"><table><thead><tr><th>号数</th><th>人数</th><th>状态</th><th>操作</th></tr></thead><tbody id="hBody"><tr><td colspan="4">加载中...</td></tr></tbody></table></div></div>
 </div>
 
 <div class="mod" id="setMod" onclick="if(event.target===this)closeSettings()">
 <div class="mod-box">
 <h3>⚙️ 叫号设置</h3>
-<label>叫号文字（用 {{number}} 占位）</label>
+<label>叫号文字（{{number}} 代表号码）</label>
 <input type="text" id="callTpl" placeholder="{{number}}，湘阁里辣请您就餐啦！">
 <label>语音音色</label>
 <select id="voiceSel"><option value="0">女声（默认）</option><option value="1">温柔女声</option><option value="2">沉稳男声</option></select>
@@ -96,55 +100,53 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
 <div class="toast" id="toast"></div>
 
 <script>
-const S={token:'',store:'',storeName:'',queues:[],stg:{}};
+console.log('queue-system v2.3 init');
 
-// Init
-(async()=>{
-  genBtns();
-  ['callTpl','voiceSel','spRate','shQr','autoPrt'].forEach(id=>{
-    document.getElementById(id).addEventListener('change',()=>{});
-  });
-  loadStg();
-  await login();
-  SSE();
-  await load();
-  setInterval(upWait,10000);
-})();
+const S={token:'',store:'',storeName:'',queues:[],stg:{}};
 
 function genBtns(){
   let h='';
   for(let i=1;i<=10;i++) h+=`<button onclick="take(${i})">${i}</button>`;
-  h+='<input type="number" id="bigP" placeholder="10+" min="11" max="99" onkeydown="if(event.key===\'Enter\')take(parseInt(this.value))">';
+  h+='<input type="number" id="bigP" placeholder="10+" min="11" max="99" onkeydown="if(event.key==='Enter')take(parseInt(this.value))">';
   document.getElementById('pRow').innerHTML=h;
 }
 
 async function login(){
   try{
+    console.log('login attempt...');
     const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:'xgll2122',password:'2122'})});
     const d=await r.json();
+    console.log('login result:',d.username,d.store);
     S.token=d.token;S.store=d.store;S.storeName=d.storeName;
-    document.getElementById('storeLabel').textContent=d.storeName;
-  }catch(e){document.getElementById('storeLabel').textContent='连接失败';}
+    document.getElementById('storeLabel').textContent=d.storeName||d.store||'✅已连接';
+  }catch(e){
+    console.error('login failed:',e);
+    document.getElementById('storeLabel').textContent='❌ 连接失败';
+  }
 }
 
 function SSE(){
-  const es=new EventSource('/api/events');
-  es.addEventListener('queue_update',e=>{
-    try{const d=JSON.parse(e.data);if(d.storeId===S.store)load();}catch(_){}
-  });
-  es.onerror=()=>{es.close();setTimeout(SSE,5000)};
+  try{
+    const es=new EventSource('/api/events');
+    es.addEventListener('queue_update',e=>{
+      try{const d=JSON.parse(e.data);if(d.storeId===S.store)load();}catch(_){}
+    });
+    es.onerror=()=>{es.close();setTimeout(SSE,5000)};
+    console.log('SSE connected');
+  }catch(e){console.error('SSE failed:',e);}
 }
 
 async function load(){
+  if(!S.token||!S.store){console.log('load skipped - no auth');return;}
   try{
-    const r=await fetch(`/api/store/${S.store}/queue`,{headers:{'Authorization':'Bearer '+S.token}});
-    if(!r.ok)return;S.queues=await r.json();render();
-  }catch(_){}
+    const r=await fetch('/api/store/'+S.store+'/queue',{headers:{'Authorization':'Bearer '+S.token}});
+    if(!r.ok){console.error('load failed:',r.status);return;}
+    S.queues=await r.json();render();
+    console.log('loaded',S.queues.length,'queues');
+  }catch(e){console.error('load error:',e);}
 }
 
-function render(){
-  renderW(); renderS(); renderH();
-}
+function render(){renderW();renderS();renderH();}
 
 function renderW(){
   const items=S.queues.filter(q=>q.status==='waiting');
@@ -180,6 +182,11 @@ function renderH(){
 }
 
 function typeLabel(t){return{A:'1-2人',B:'3-4人',C:'5人以上'}[t]||t;}
+
+async function take(people){
+  if(!people||people<1)return;
+  try{
+    const r=await fetch('/api/store/'+S.store+'/queue',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+S.token},body:JSON.stringify({people})});
     const d=await r.json();
     if(!r.ok){toast(d.error||'失败');return;}
     if(S.stg.showQr!==false)showRes(d);
@@ -191,7 +198,7 @@ function typeLabel(t){return{A:'1-2人',B:'3-4人',C:'5人以上'}[t]||t;}
 }
 
 function showRes(r){
-  document.getElementById('qrImg').src=`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(location.origin+'/s.html?n='+r.queue_number+'&t='+r.type+'&tm='+encodeURIComponent(new Date(r.created_at).toLocaleString('zh-CN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}))+'&s='+encodeURIComponent(S.storeName))}`;
+  document.getElementById('qrImg').src='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data='+encodeURIComponent(location.origin+'/s.html?n='+r.queue_number+'&t='+r.type+'&tm='+encodeURIComponent(new Date(r.created_at).toLocaleString('zh-CN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}))+'&s='+encodeURIComponent(S.storeName));
   document.getElementById('resNum').textContent=r.queue_number;
   document.getElementById('resType').textContent=typeLabel(r.type);
   document.getElementById('resTime').textContent='取号: '+new Date(r.created_at).toLocaleString('zh-CN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
@@ -202,7 +209,7 @@ function closeRes(){document.getElementById('resOv').classList.remove('show');}
 async function doCall(id){
   window.speechSynthesis&&window.speechSynthesis.cancel();
   try{
-    const r=await fetch(`/api/store/${S.store}/queue/${id}/call`,{method:'POST',headers:{'Authorization':'Bearer '+S.token}});
+    const r=await fetch('/api/store/'+S.store+'/queue/'+id+'/call',{method:'POST',headers:{'Authorization':'Bearer '+S.token}});
     const d=await r.json();
     if(!r.ok){toast(d.error||'失败');return;}
     const tpl=S.stg.callTpl||'{{number}}，湘阁里辣请您就餐啦！';
@@ -222,17 +229,17 @@ function speak(text){
 
 async function doSkip(id){
   if(!confirm('确认将此号标记为过号？'))return;
-  try{await fetch(`/api/store/${S.store}/queue/${id}/skip`,{method:'POST',headers:{'Authorization':'Bearer '+S.token}});await load();}catch(e){toast('操作失败');}
+  try{await fetch('/api/store/'+S.store+'/queue/'+id+'/skip',{method:'POST',headers:{'Authorization':'Bearer '+S.token}});await load();}catch(e){toast('操作失败');}
 }
 
 async function doSeat(id){
   if(!confirm('确认入座？'))return;
-  try{await fetch(`/api/store/${S.store}/queue/${id}/seat`,{method:'POST',headers:{'Authorization':'Bearer '+S.token}});await load();}catch(e){toast('操作失败');}
+  try{await fetch('/api/store/'+S.store+'/queue/'+id+'/seat',{method:'POST',headers:{'Authorization':'Bearer '+S.token}});await load();}catch(e){toast('操作失败');}
 }
 
 async function doCancel(id){
   if(!confirm('确认撤号？'))return;
-  try{await fetch(`/api/store/${S.store}/queue/${id}/cancel`,{method:'POST',headers:{'Authorization':'Bearer '+S.token}});await load();}catch(e){toast('操作失败');}
+  try{await fetch('/api/store/'+S.store+'/queue/'+id+'/cancel',{method:'POST',headers:{'Authorization':'Bearer '+S.token}});await load();}catch(e){toast('操作失败');}
 }
 
 function loadStg(){
@@ -264,6 +271,17 @@ function upWait(){
 let _tt;
 function toast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>e.classList.remove('show'),2000);}
 function autoP(d){}
+
+// INIT - with error boundary
+console.log('starting init...');
+genBtns();
+loadStg();
+login().then(()=>{
+  SSE();
+  load().then(()=>console.log('initial load done')).catch(e=>console.error('init load error:',e));
+}).catch(e=>console.error('init login error:',e));
+setInterval(upWait,10000);
+console.log('init complete');
 </script>
 </body>
 </html>
