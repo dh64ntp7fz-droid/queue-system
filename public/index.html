@@ -3,44 +3,86 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>湘阁里辣 · 等位叫号 v2.4</title>
+<title>湘阁里辣 · 等位叫号 v2.6</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%;overflow-x:hidden}
-body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:#f5f5f5;color:#2C2C2C;font-size:14px;display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}
-.hdr{background:linear-gradient(135deg,#B22222,#8B0000);color:#fff;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.15)}
-.hdr h1{font-size:15px;font-weight:700}
-.hdr .v{font-size:9px;opacity:.6}
-.hdr .sub{font-size:11px;opacity:.85;margin-top:1px}
-.hdr .hbtns button{background:rgba(255,255,255,.15);border:none;color:#fff;width:32px;height:32px;border-radius:8px;font-size:16px;cursor:pointer}
-.pb-wrap{padding:6px 8px;background:#fff;border-bottom:1px solid #eee;position:sticky;top:47px;z-index:99}
-.pb-lbl{font-size:10px;color:#999;text-align:center}
-.pb-row{display:flex;flex-wrap:wrap;gap:4px;align-items:center;justify-content:center;margin-top:4px}
-.pb-row button{min-width:34px;height:34px;border-radius:8px;border:2px solid #B22222;background:#fff;color:#B22222;font-size:14px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:#f0f2f5;color:#2C2C2C;font-size:14px;display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}
+.hdr{background:linear-gradient(135deg,#B22222,#8B0000);color:#fff;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.hdr h1{font-size:16px;font-weight:700}
+.hdr .v{font-size:9px;opacity:.5}
+.hdr .sub{font-size:11px;opacity:.85;margin-top:2px}
+.hdr .hbtns button{background:rgba(255,255,255,.15);border:none;color:#fff;width:34px;height:34px;border-radius:10px;font-size:17px;cursor:pointer}
+.pb-wrap{padding:8px 12px;background:#fff;border-bottom:1px solid #e8e8e8;position:sticky;top:52px;z-index:99}
+.pb-row{display:flex;flex-wrap:wrap;gap:5px;align-items:center;justify-content:center}
+.pb-row button{min-width:36px;height:36px;border-radius:10px;border:2px solid #B22222;background:#fff;color:#B22222;font-size:14px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .pb-row button:active{background:#B22222;color:#fff}
-.pb-row input{width:48px;height:34px;border-radius:8px;border:2px solid #ccc;text-align:center;font-size:14px;font-weight:700;outline:none}
-.main{flex:1;overflow-y:auto;padding:8px;-webkit-overflow-scrolling:touch}
-.sec{margin-bottom:10px}
-.sec-tt{font-size:11px;font-weight:700;color:#888;padding:4px 2px 6px}
-.qi{display:flex;align-items:center;padding:8px 10px;background:#fff;border-radius:8px;margin-bottom:4px;gap:8px;box-shadow:0 1px 2px rgba(0,0,0,.04);border-left:3px solid #B22222}
-.qi.skipped{border-left-color:#ccc;opacity:.6}
-.qi .num{font-size:24px;font-weight:800;color:#B22222;min-width:38px;text-align:center;line-height:1}
-.skipped .num{color:#999}
-.qi .inf{flex:1;min-width:0}
-.qi .inf .ppl{font-size:14px;font-weight:700}
-.qi .inf .wait{font-size:10px;color:#999;margin-top:1px}
-.qi .acts{display:flex;gap:3px;flex-shrink:0;flex-wrap:wrap}
-.qi .acts button{padding:5px 8px;border-radius:6px;border:none;font-size:10px;font-weight:600;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent}
-.b-call{background:#B22222;color:#fff}.b-call:active{background:#8B0000}
-.b-skip{background:#E65100;color:#fff}.b-skip:active{background:#BF360C}
-.b-seat{background:#2E7D32;color:#fff}.b-seat:active{background:#1B5E20}
-.b-cnl{background:#eee;color:#666}.b-cnl:active{background:#ddd}
-.empty{text-align:center;color:#ccc;padding:20px;font-size:12px}
-.tab table{width:100%;border-collapse:collapse;font-size:11px;background:#fff;border-radius:8px;overflow:hidden}
-.tab th{background:#f9f9f9;color:#888;padding:5px 3px;font-weight:400}
-.tab td{padding:4px 3px;text-align:center;border-bottom:1px solid #f5f5f5}
-.tab td:first-child{font-weight:700;color:#B22222}
-.tab .rbtn{padding:3px 7px;font-size:10px;border:1px solid #ddd;background:#fff;border-radius:4px;cursor:pointer}
+.pb-row input{width:52px;height:36px;border-radius:10px;border:2px solid #ddd;text-align:center;font-size:14px;font-weight:700;outline:none}
+.pb-row input:focus{border-color:#B22222}
+.main{flex:1;overflow-y:auto;padding:10px 12px;-webkit-overflow-scrolling:touch}
+
+/* 三列区域 */
+.cols-wrap{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px}
+.col-block{display:flex;flex-direction:column}
+.col-label{text-align:center;font-weight:700;font-size:13px;padding:7px 0;border-radius:8px 8px 0 0;margin-bottom:0;letter-spacing:1px}
+.col-label.ta{background:#FFF3E0;color:#E65100}
+.col-label.tb{background:#E8F5E9;color:#2E7D32}
+.col-label.tc{background:#E3F2FD;color:#1565C0}
+.col-cards{display:flex;flex-direction:column;gap:6px;min-height:40px}
+.col-cards .empty-hint{text-align:center;color:#ccc;font-size:11px;padding:12px 0}
+
+/* 等位卡片 */
+.qcard{background:#fff;border-radius:10px;padding:10px 8px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.06);border:1px solid #f0f0f0;position:relative;transition:box-shadow .15s}
+.qcard .qnum{font-size:30px;font-weight:800;color:#B22222;line-height:1.1;margin-bottom:2px}
+.qcard .qppl{font-size:13px;font-weight:600;color:#555;margin-bottom:2px}
+.qcard .qwait{font-size:10px;color:#999;margin-bottom:6px}
+.qcard .qacts{display:flex;gap:4px;justify-content:center;flex-wrap:wrap}
+.qcard .qacts button{padding:5px 10px;border-radius:6px;border:none;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.qcard .qacts .b-call{background:#B22222;color:#fff;min-width:44px}
+.qcard .qacts .b-call:active{background:#8B0000}
+.qcard .qacts .b-skip{background:#E65100;color:#fff;min-width:44px}
+.qcard .qacts .b-skip:active{background:#BF360C}
+.qcard .qacts .b-seat{background:#2E7D32;color:#fff;min-width:44px}
+.qcard .qacts .b-seat:active{background:#1B5E20}
+
+/* 已叫号卡片 */
+.qcard.called{background:#FFFDE7;border-color:#FFD54F;box-shadow:0 0 0 2px #FFC107 inset}
+.qcard.called .qnum{color:#E65100}
+.qcard .qbadge{display:inline-block;background:#FF9800;color:#fff;font-size:9px;padding:2px 8px;border-radius:3px;margin-bottom:4px;font-weight:600}
+
+/* 已叫号横条 */
+.called-strip{background:#fff;border-radius:10px;padding:10px 12px;margin-bottom:12px;box-shadow:0 1px 2px rgba(0,0,0,.04);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.called-strip .cs-label{font-size:12px;font-weight:700;color:#E65100;white-space:nowrap;flex-shrink:0}
+.called-strip .cs-chips{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+.called-chip{padding:4px 12px;border-radius:14px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:transform .1s}
+.called-chip:active{transform:scale(.95)}
+.called-chip.ca{background:#FFF3E0;color:#E65100;border:1px solid #FFCC80}
+.called-chip.cb{background:#E8F5E9;color:#2E7D32;border:1px solid #A5D6A7}
+.called-chip.cc{background:#E3F2FD;color:#1565C0;border:1px solid #90CAF9}
+.called-strip .cs-empty{font-size:11px;color:#ccc}
+
+/* 过号 */
+.skip-sec{margin-bottom:12px}
+.skip-sec .skip-hd{font-size:11px;color:#999;margin-bottom:4px;padding-left:2px}
+.skip-row{display:flex;gap:6px;flex-wrap:wrap}
+.skip-chip{padding:4px 12px;border-radius:14px;font-size:11px;background:#f5f5f5;color:#999;border:1px solid #e0e0e0;display:flex;align-items:center;gap:6px}
+.skip-chip button{background:none;border:none;color:#999;font-size:14px;cursor:pointer;padding:0 2px;line-height:1}
+.skip-chip button:hover{color:#B22222}
+
+/* 历史 */
+.hist-block{background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.hist-tog{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;padding:10px 12px;font-size:13px;font-weight:600;color:#555}
+.hist-tog .arr{transition:transform .2s;font-size:10px;color:#999}
+.hist-tog.open .arr{transform:rotate(90deg)}
+.hist-wrap{display:none}
+.hist-wrap.show{display:block}
+.hist-wrap table{width:100%;border-collapse:collapse;font-size:11px}
+.hist-wrap th{background:#fafafa;color:#999;padding:6px 4px;font-weight:400;border-bottom:1px solid #eee}
+.hist-wrap td{padding:5px 4px;text-align:center;border-bottom:1px solid #f5f5f5}
+.hist-wrap td:first-child{font-weight:700;color:#B22222}
+.hist-wrap .rbtn{padding:3px 8px;font-size:10px;border:1px solid #ddd;background:#fff;border-radius:4px;cursor:pointer}
+
+/* 弹窗 */
 .mod{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;align-items:center;justify-content:center}
 .mod.show{display:flex}
 .mod-box{background:#fff;width:90%;max-width:360px;border-radius:14px;padding:20px;max-height:85vh;overflow-y:auto}
@@ -51,6 +93,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
 .mod-box select{padding:8px;border:1px solid #ddd;border-radius:8px;font-size:13px;background:#fff}
 .mod-tog{display:flex;align-items:center;justify-content:space-between;padding:6px 0;font-size:13px}
 .mod-save{width:100%;padding:10px;background:#B22222;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;margin-top:12px}
+
 .rov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:180;align-items:center;justify-content:center}
 .rov.show{display:flex}
 .rcard{background:#fff;border-radius:16px;padding:20px;text-align:center;width:260px;box-shadow:0 8px 30px rgba(0,0,0,.15)}
@@ -62,24 +105,71 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
 .rcard .hint{font-size:10px;color:#B22222;margin-top:4px}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:8px 20px;border-radius:20px;font-size:13px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none}
 .toast.show{opacity:1}
-@media(min-width:768px){.main{max-width:600px;margin:0 auto}.pb-row button{min-width:40px;height:40px;font-size:16px}}
+
+/* 平板桌面 */
+@media(min-width:900px){
+  .main{max-width:1100px;margin:0 auto}
+  .qcard .qnum{font-size:36px}
+  .qcard .qppl{font-size:14px}
+  .cols-wrap{gap:14px}
+  .col-cards{gap:8px}
+}
+@media(max-width:500px){
+  .cols-wrap{gap:5px}
+  .qcard{padding:8px 5px}
+  .qcard .qnum{font-size:22px}
+  .qcard .qacts button{padding:4px 6px;font-size:10px}
+}
 </style>
 </head>
 <body>
 
 <div class="hdr">
-  <div><h1>湘阁里辣 · 等位 <span class="v">v2.4</span></h1><div class="sub" id="storeLabel">🔄 连接中...</div></div>
+  <div><h1>湘阁里辣 · 等位叫号 <span class="v">v2.6</span></h1><div class="sub" id="storeLabel">🔄 连接中...</div></div>
   <div class="hbtns"><button onclick="showSettings()">⚙️</button></div>
 </div>
 
-<div class="pb-wrap"><div class="pb-lbl">👇 点人数取号（1-2→A · 3-4→B · 5+→C）</div><div class="pb-row" id="pRow"></div></div>
+<div class="pb-wrap"><div class="pb-row" id="pRow"></div></div>
 
 <div class="main" id="mainScroll">
-  <div class="sec"><div class="sec-tt">🟢 等位中</div><div id="wList"><div class="empty">⏳ 加载中...</div></div></div>
-  <div class="sec" id="skipSec" style="display:none"><div class="sec-tt">⏭️ 已过号</div><div id="sList"></div></div>
-  <div class="sec tab"><div class="sec-tt">📋 今日记录</div><div style="overflow-x:auto"><table><thead><tr><th>号数</th><th>人数</th><th>状态</th><th>操作</th></tr></thead><tbody id="hBody"><tr><td colspan="4">加载中...</td></tr></tbody></table></div></div>
+
+  <!-- 三列等位区 -->
+  <div class="cols-wrap">
+    <div class="col-block">
+      <div class="col-label ta">小桌 A · 1-2人</div>
+      <div class="col-cards" id="colA"><div class="empty-hint">暂无排队</div></div>
+    </div>
+    <div class="col-block">
+      <div class="col-label tb">中桌 B · 3-4人</div>
+      <div class="col-cards" id="colB"><div class="empty-hint">暂无排队</div></div>
+    </div>
+    <div class="col-block">
+      <div class="col-label tc">大桌 C · 5人+</div>
+      <div class="col-cards" id="colC"><div class="empty-hint">暂无排队</div></div>
+    </div>
+  </div>
+
+  <!-- 已叫号横条 -->
+  <div class="called-strip" id="calledStrip" style="display:none">
+    <span class="cs-label">📣 已叫号</span>
+    <span class="cs-chips" id="calledChips"></span>
+  </div>
+
+  <!-- 过号 -->
+  <div class="skip-sec" id="skipSec" style="display:none">
+    <div class="skip-hd">⏭️ 已过号</div>
+    <div class="skip-row" id="skipRow"></div>
+  </div>
+
+  <!-- 历史 -->
+  <div class="hist-block">
+    <div class="hist-tog" onclick="toggleHist()"><span class="arr">▶</span> 📋 今日记录</div>
+    <div class="hist-wrap" id="histWrap"><div style="overflow-x:auto"><table><thead><tr><th>号数</th><th>人数</th><th>状态</th><th>操作</th></tr></thead><tbody id="hBody"><tr><td colspan="4">加载中...</td></tr></tbody></table></div></div>
+  </div>
+
 </div>
 
+<!-- 设置弹窗 -->
 <div class="mod" id="setMod" onclick="if(event.target===this)closeSettings()">
 <div class="mod-box">
 <h3>⚙️ 叫号设置</h3>
@@ -94,200 +184,237 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
 <button class="mod-save" onclick="saveSettings()">💾 保存设置</button>
 </div></div>
 
+<!-- 取号结果弹窗 -->
 <div class="rov" id="resOv" onclick="if(event.target===this)closeRes()">
 <div class="rcard"><img class="qr" id="qrImg" src=""><div class="bnum" id="resNum"></div><div class="btype" id="resType"></div><div class="btime" id="resTime"></div><div class="hint">📸 请顾客截图保存</div><button class="close-btn" onclick="closeRes()">关闭</button></div></div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-console.log('queue-system v2.4 init');
+console.log("queue-system v2.6 init");
 
-const S={token:'',store:'',storeName:'',queues:[],stg:{}};
+const S={token:"",store:"",storeName:"",queues:[],stg:{}};
 
 function genBtns(){
-  let h='';
-  for(let i=1;i<=10;i++) h+=`<button onclick="take(${i})">${i}</button>`;
-  h+='<input type="number" id="bigP" placeholder="10+" min="11" max="99" onkeydown="if(event.key==='Enter')take(parseInt(this.value))">';
-  document.getElementById('pRow').innerHTML=h;
+  var h="";
+  for(var i=1;i<=10;i++) h+="<button onclick=take("+i+")>"+i+"</button>";
+  h+="<input type=number id=bigP placeholder=10+ min=11 max=99 onkeydown=\"if(event.key==='Enter')take(parseInt(this.value))\">";
+  document.getElementById("pRow").innerHTML=h;
 }
 
-async function login(retry=0){
-  const el=document.getElementById('storeLabel');
+async function login(retry){
+  retry=retry||0;
+  var el=document.getElementById("storeLabel");
   try{
-    console.log('login v2.4 attempt',retry);
-    const ctrl=new AbortController();
-    const t=setTimeout(()=>ctrl.abort(),8000);
-    const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:'xgll2122',password:'2122'}),signal:ctrl.signal});
+    console.log("login v2.6 attempt",retry);
+    var ctrl=new AbortController();
+    var t=setTimeout(function(){ctrl.abort()},8000);
+    var r=await fetch("/api/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:"xgll2122",password:"2122"}),signal:ctrl.signal});
     clearTimeout(t);
-    const d=await r.json();
-    console.log('login ok:',d.username,d.store);
+    var d=await r.json();
+    console.log("login ok:",d.username,d.store);
     S.token=d.token;S.store=d.store;S.storeName=d.storeName;
-    el.textContent=d.storeName||d.store||'✅已连接';
+    el.textContent=d.storeName||d.store||"已连接";
   }catch(e){
-    console.error('login fail:',e.name,e.message);
-    if(retry<2){el.textContent='⏳ 重试中('+(retry+1)+')...';setTimeout(()=>login(retry+1),2000);}
-    else el.textContent='❌ 连接失败 点我重试';
-    el.style.cursor='pointer';el.onclick=()=>login(0);
+    console.error("login fail:",e.name,e.message);
+    if(retry<2){el.textContent="重试中("+(retry+1)+")...";setTimeout(function(){login(retry+1)},2000)}
+    else el.textContent="连接失败 点此重试";
+    el.style.cursor="pointer";el.onclick=function(){login(0)}
   }
 }
 
 function SSE(){
   try{
-    const es=new EventSource('/api/events');
-    es.addEventListener('queue_update',e=>{
-      try{const d=JSON.parse(e.data);if(d.storeId===S.store)load();}catch(_){}
+    var es=new EventSource("/api/events");
+    es.addEventListener("queue_update",function(e){
+      try{var d=JSON.parse(e.data);if(d.storeId===S.store)load()}catch(_){}
     });
-    es.onerror=()=>{es.close();setTimeout(SSE,5000)};
-    console.log('SSE connected');
-  }catch(e){console.error('SSE failed:',e);}
+    es.onerror=function(){es.close();setTimeout(SSE,5000)};
+    console.log("SSE connected");
+  }catch(e){console.error("SSE failed:",e)}
 }
 
 async function load(){
-  if(!S.token||!S.store){console.log('load skipped - no auth');return;}
+  if(!S.token||!S.store){console.log("load skipped - no auth");return}
   try{
-    const r=await fetch('/api/store/'+S.store+'/queue',{headers:{'Authorization':'Bearer '+S.token}});
-    if(!r.ok){console.error('load failed:',r.status);return;}
+    var r=await fetch("/api/store/"+S.store+"/queue",{headers:{Authorization:"Bearer "+S.token}});
+    if(!r.ok){console.error("load failed:",r.status);return}
     S.queues=await r.json();render();
-    console.log('loaded',S.queues.length,'queues');
-  }catch(e){console.error('load error:',e);}
+    console.log("loaded",S.queues.length,"queues");
+  }catch(e){console.error("load error:",e)}
 }
 
-function render(){renderW();renderS();renderH();}
+function render(){renderW();renderCalled();renderS();renderH()}
+
+function colName(t){return t==="A"?"小桌":t==="B"?"中桌":"大桌"}
 
 function renderW(){
-  const items=S.queues.filter(q=>q.status==='waiting');
-  const el=document.getElementById('wList');
-  if(!items.length){el.innerHTML='<div class="empty">📭 暂无排队</div>';return;}
-  el.innerHTML=items.map(q=>`
-    <div class="qi"><div class="num">${q.queue_number}</div>
-    <div class="inf"><div class="ppl">${q.people}人${q.phone?' 📞'+q.phone:''}</div>
-    <div class="wait" data-ts="${q.created_at}">⏱ 排队中...</div></div>
-    <div class="acts">
-      <button class="b-call" onclick="doCall('${q.id}')">📣叫号</button>
-      <button class="b-skip" onclick="doSkip('${q.id}')">过号</button>
-      <button class="b-seat" onclick="doSeat('${q.id}')">入座</button>
-    </div></div>`).join('');
+  var waiting=S.queues.filter(function(q){return q.status==="waiting"});
+  var byType={A:[],B:[],C:[]};
+  waiting.forEach(function(q){
+    byType[q.type]=byType[q.type]||[];
+    byType[q.type].push(q);
+  });
+  ["A","B","C"].forEach(function(t){
+    var el=document.getElementById("col"+t);
+    var list=byType[t]||[];
+    if(!list.length){el.innerHTML="<div class=empty-hint>暂无排队</div>";return}
+    el.innerHTML=list.map(function(q){
+      var ws=' data-ts="'+q.created_at+'"';
+      return '<div class=qcard><div class=qnum>'+q.queue_number+'</div><div class=qppl>'+q.people+'人</div><div class=qwait'+ws+'>排队中...</div><div class=qacts><button class=b-call onclick=doCall("'+q.id+'")>叫号</button><button class=b-skip onclick=doSkip("'+q.id+'")>过号</button><button class=b-seat onclick=doSeat("'+q.id+'")>入座</button></div></div>';
+    }).join("");
+  });
+}
+
+function renderCalled(){
+  var called=S.queues.filter(function(q){return q.status==="called"});
+  var strip=document.getElementById("calledStrip");
+  if(!called.length){strip.style.display="none";return}
+  strip.style.display="flex";
+  document.getElementById("calledChips").innerHTML=called.map(function(q){
+    var cc=q.type==="A"?"ca":q.type==="B"?"cb":"cc";
+    return '<span class="called-chip '+cc+'" onclick=doCall("'+q.id+'") title="点击重新叫号">'+q.queue_number+' '+q.people+'人</span>';
+  }).join("");
 }
 
 function renderS(){
-  const items=S.queues.filter(q=>q.status==='skipped');
-  const sec=document.getElementById('skipSec');
-  if(!items.length){sec.style.display='none';return;}
-  sec.style.display='';
-  document.getElementById('sList').innerHTML=items.map(q=>`
-    <div class="qi skipped"><div class="num">${q.queue_number}</div>
-    <div class="inf"><div class="ppl">${q.people}人</div></div>
-    <div class="acts"><button class="b-cnl" onclick="doCancel('${q.id}')">撤号</button></div></div>`).join('');
+  var skipped=S.queues.filter(function(q){return q.status==="skipped"});
+  var sec=document.getElementById("skipSec");
+  if(!skipped.length){sec.style.display="none";return}
+  sec.style.display="block";
+  document.getElementById("skipRow").innerHTML=skipped.map(function(q){
+    return '<div class=skip-chip>'+q.queue_number+' '+q.people+'人 <button onclick=doCancel("'+q.id+'") title=撤号>✕</button></div>';
+  }).join("");
 }
 
 function renderH(){
-  const sm={waiting:'等位中',called:'已叫号',seated:'已入座',skipped:'已过号',cancelled:'已取消'};
-  document.getElementById('hBody').innerHTML=S.queues.slice().reverse().map(q=>`
-    <tr><td>${q.queue_number}</td><td>${q.people}人</td><td>${sm[q.status]||q.status}</td>
-    <td>${q.status==='waiting'?`<button class="rbtn" onclick="doCancel('${q.id}')">撤号</button>`:''}</td></tr>`).join('');
+  var sm={waiting:"等位中",called:"已叫号",seated:"已入座",skipped:"已过号",cancelled:"已取消"};
+  document.getElementById("hBody").innerHTML=S.queues.slice().reverse().map(function(q){
+    var cancelBtn=q.status==="waiting"?'<button class=rbtn onclick=doCancel("'+q.id+'")>撤号</button>':"";
+    return "<tr><td>"+q.queue_number+"</td><td>"+q.people+"人</td><td>"+(sm[q.status]||q.status)+"</td><td>"+cancelBtn+"</td></tr>";
+  }).join("");
 }
 
-function typeLabel(t){return{A:'1-2人',B:'3-4人',C:'5人以上'}[t]||t;}
+function typeLabel(t){return t==="A"?"1-2人":t==="B"?"3-4人":"5人以上"}
 
 async function take(people){
   if(!people||people<1)return;
   try{
-    const r=await fetch('/api/store/'+S.store+'/queue',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+S.token},body:JSON.stringify({people})});
-    const d=await r.json();
-    if(!r.ok){toast(d.error||'失败');return;}
+    var r=await fetch("/api/store/"+S.store+"/queue",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+S.token},body:JSON.stringify({people:people})});
+    var d=await r.json();
+    if(!r.ok){toast(d.error||"失败");return}
     if(S.stg.showQr!==false)showRes(d);
-    else toast('取号: '+d.queue_number+'号');
+    else toast("取号: "+d.queue_number+"号");
     if(S.stg.autoPrint)autoP(d);
-    document.getElementById('bigP').value='';
+    document.getElementById("bigP").value="";
     await load();
-  }catch(e){toast('取号失败');}
+  }catch(e){toast("取号失败")}
 }
 
 function showRes(r){
-  document.getElementById('qrImg').src='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data='+encodeURIComponent(location.origin+'/s.html?n='+r.queue_number+'&t='+r.type+'&tm='+encodeURIComponent(new Date(r.created_at).toLocaleString('zh-CN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}))+'&s='+encodeURIComponent(S.storeName));
-  document.getElementById('resNum').textContent=r.queue_number;
-  document.getElementById('resType').textContent=typeLabel(r.type);
-  document.getElementById('resTime').textContent='取号: '+new Date(r.created_at).toLocaleString('zh-CN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  document.getElementById('resOv').classList.add('show');
+  document.getElementById("qrImg").src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data="+encodeURIComponent(location.origin+"/s.html?n="+r.queue_number+"&t="+r.type+"&tm="+encodeURIComponent(new Date(r.created_at).toLocaleString("zh-CN",{hour:"2-digit",minute:"2-digit",second:"2-digit"}))+"&s="+encodeURIComponent(S.storeName));
+  document.getElementById("resNum").textContent=r.queue_number;
+  document.getElementById("resType").textContent=typeLabel(r.type);
+  document.getElementById("resTime").textContent="取号: "+new Date(r.created_at).toLocaleString("zh-CN",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+  document.getElementById("resOv").classList.add("show");
 }
-function closeRes(){document.getElementById('resOv').classList.remove('show');}
+function closeRes(){document.getElementById("resOv").classList.remove("show")}
 
 async function doCall(id){
-  window.speechSynthesis&&window.speechSynthesis.cancel();
+  if(window.speechSynthesis)window.speechSynthesis.cancel();
   try{
-    const r=await fetch('/api/store/'+S.store+'/queue/'+id+'/call',{method:'POST',headers:{'Authorization':'Bearer '+S.token}});
-    const d=await r.json();
-    if(!r.ok){toast(d.error||'失败');return;}
-    const tpl=S.stg.callTpl||'{{number}}，湘阁里辣请您就餐啦！';
-    const txt=tpl.replace('{{number}}',d.queue_number);
+    var r=await fetch("/api/store/"+S.store+"/queue/"+id+"/call",{method:"POST",headers:{Authorization:"Bearer "+S.token}});
+    var d=await r.json();
+    if(!r.ok){toast(d.error||"失败");return}
+    var tpl=S.stg.callTpl||"{{number}}，湘阁里辣请您就餐啦！";
+    var txt=tpl.replace("{{number}}",d.queue_number);
     speak(txt);
     await load();
-  }catch(e){toast('叫号失败');}
+  }catch(e){toast("叫号失败")}
 }
 
 function speak(text){
   if(!window.speechSynthesis)return;
-  const vc=[{p:1.2,r:1},{p:1.0,r:0.95},{p:0.75,r:0.85}][parseInt(S.stg.voice)||0];
-  const rt=S.stg.speechRate||0.9;
-  function u(i){if(i>=5)return;const ut=new SpeechSynthesisUtterance(text);ut.lang='zh-CN';ut.rate=rt;ut.pitch=vc.p;ut.volume=1;ut.onend=()=>u(i+1);window.speechSynthesis.speak(ut);}
+  text=text.replace(/([ABC])(\d)/g,"$1 $2");
+  var voices=window.speechSynthesis.getVoices();
+  var vcMap={"0":"Tingting","1":"Sinji","2":"Meijia"};
+  var vcName=vcMap[S.stg.voice]||"Tingting";
+  var best=voices.find(function(v){return v.name.includes(vcName)&&v.lang.includes("zh")})||voices.find(function(v){return v.lang.includes("zh-CN")})||voices[0];
+  var rt=S.stg.speechRate||0.95;
+  function u(i){if(i>=3)return;
+    var ut=new SpeechSynthesisUtterance(text);
+    ut.lang="zh-CN";ut.rate=rt;ut.pitch=1.05;ut.volume=1;
+    if(best)ut.voice=best;
+    ut.onend=function(){u(i+1)};
+    window.speechSynthesis.speak(ut);
+  }
   u(0);
 }
 
 async function doSkip(id){
-  if(!confirm('确认将此号标记为过号？'))return;
-  try{await fetch('/api/store/'+S.store+'/queue/'+id+'/skip',{method:'POST',headers:{'Authorization':'Bearer '+S.token}});await load();}catch(e){toast('操作失败');}
+  if(!confirm("确认将此号标记为过号？"))return;
+  try{await fetch("/api/store/"+S.store+"/queue/"+id+"/skip",{method:"POST",headers:{Authorization:"Bearer "+S.token}});await load()}catch(e){toast("操作失败")}
 }
 
 async function doSeat(id){
-  if(!confirm('确认入座？'))return;
-  try{await fetch('/api/store/'+S.store+'/queue/'+id+'/seat',{method:'POST',headers:{'Authorization':'Bearer '+S.token}});await load();}catch(e){toast('操作失败');}
+  if(!confirm("确认入座？"))return;
+  try{await fetch("/api/store/"+S.store+"/queue/"+id+"/seat",{method:"POST",headers:{Authorization:"Bearer "+S.token}});await load()}catch(e){toast("操作失败")}
 }
 
 async function doCancel(id){
-  if(!confirm('确认撤号？'))return;
-  try{await fetch('/api/store/'+S.store+'/queue/'+id+'/cancel',{method:'POST',headers:{'Authorization':'Bearer '+S.token}});await load();}catch(e){toast('操作失败');}
+  if(!confirm("确认撤号？"))return;
+  try{await fetch("/api/store/"+S.store+"/queue/"+id+"/cancel",{method:"POST",headers:{Authorization:"Bearer "+S.token}});await load()}catch(e){toast("操作失败")}
 }
 
 function loadStg(){
-  const d=JSON.parse(localStorage.getItem('qs')||'{}');
-  S.stg={callTpl:d.callTpl||'{{number}}，湘阁里辣请您就餐啦！',voice:d.voice||'0',speechRate:d.speechRate||0.9,showQr:d.showQr!==false,autoPrint:d.autoPrint===true};
-  document.getElementById('callTpl').value=S.stg.callTpl;
-  document.getElementById('voiceSel').value=S.stg.voice;
-  document.getElementById('spRate').value=S.stg.speechRate;
-  document.getElementById('rateV').textContent=S.stg.speechRate;
-  document.getElementById('shQr').checked=S.stg.showQr;
-  document.getElementById('autoPrt').checked=S.stg.autoPrint;
+  var d=JSON.parse(localStorage.getItem("qs")||"{}");
+  S.stg={callTpl:d.callTpl||"{{number}}，湘阁里辣请您就餐啦！",voice:d.voice||"0",speechRate:d.speechRate||0.9,showQr:d.showQr!==false,autoPrint:d.autoPrint===true};
+  document.getElementById("callTpl").value=S.stg.callTpl;
+  document.getElementById("voiceSel").value=S.stg.voice;
+  document.getElementById("spRate").value=S.stg.speechRate;
+  document.getElementById("rateV").textContent=S.stg.speechRate;
+  document.getElementById("shQr").checked=S.stg.showQr;
+  document.getElementById("autoPrt").checked=S.stg.autoPrint;
 }
 
-function showSettings(){loadStg();document.getElementById('setMod').classList.add('show');}
-function closeSettings(){document.getElementById('setMod').classList.remove('show');}
+function showSettings(){loadStg();document.getElementById("setMod").classList.add("show")}
+function closeSettings(){document.getElementById("setMod").classList.remove("show")}
 function saveSettings(){
-  S.stg={callTpl:document.getElementById('callTpl').value,voice:document.getElementById('voiceSel').value,speechRate:parseFloat(document.getElementById('spRate').value),showQr:document.getElementById('shQr').checked,autoPrint:document.getElementById('autoPrt').checked};
-  localStorage.setItem('qs',JSON.stringify(S.stg));
-  closeSettings();toast('设置已保存');
+  S.stg={callTpl:document.getElementById("callTpl").value,voice:document.getElementById("voiceSel").value,speechRate:parseFloat(document.getElementById("spRate").value),showQr:document.getElementById("shQr").checked,autoPrint:document.getElementById("autoPrt").checked};
+  localStorage.setItem("qs",JSON.stringify(S.stg));
+  closeSettings();toast("设置已保存");
 }
 
 function upWait(){
-  document.querySelectorAll('.wait[data-ts]').forEach(el=>{
-    const m=Math.floor((Date.now()-new Date(el.dataset.ts))/60000);
-    el.textContent='⏱ 已排'+m+'分钟';
+  document.querySelectorAll(".qwait[data-ts]").forEach(function(el){
+    var m=Math.floor((Date.now()-new Date(el.dataset.ts))/60000);
+    el.textContent="已排"+m+"分钟";
   });
 }
 
-let _tt;
-function toast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>e.classList.remove('show'),2000);}
+function toggleHist(){
+  var w=document.getElementById("histWrap");
+  var t=document.querySelector(".hist-tog");
+  w.classList.toggle("show");t.classList.toggle("open");
+}
+
+// 预加载语音
+if(window.speechSynthesis){window.speechSynthesis.getVoices();window.speechSynthesis.onvoiceschanged=function(){window.speechSynthesis.getVoices()}}
+
+var _tt;
+function toast(m){var e=document.getElementById("toast");e.textContent=m;e.classList.add("show");clearTimeout(_tt);_tt=setTimeout(function(){e.classList.remove("show")},2000)}
 function autoP(d){}
 
-// INIT - with error boundary
-console.log('starting init...');
+// INIT
+console.log("starting v2.6 init...");
 genBtns();
 loadStg();
-login().then(()=>{
+login().then(function(){
   SSE();
-  load().then(()=>console.log('initial load done')).catch(e=>console.error('init load error:',e));
-}).catch(e=>console.error('init login error:',e));
+  load().then(function(){console.log("initial load done")}).catch(function(e){console.error("init load error:",e)});
+}).catch(function(e){console.error("init login error:",e)});
 setInterval(upWait,10000);
-console.log('init complete');
+console.log("v2.6 init complete");
 </script>
 </body>
 </html>
