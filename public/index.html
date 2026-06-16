@@ -9,20 +9,22 @@
 html,body{height:100%;overflow-x:hidden}
 body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:#f0f2f5;color:#2C2C2C;font-size:14px;display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;overflow:hidden}
 
-/* 登录页 */
-.login-page{position:fixed;inset:0;z-index:300;background:linear-gradient(180deg,#B22222 0%,#C62828 30%,#f0f2f5 30%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;transition:opacity .3s}
+/* 登录页 — 全新设计 */
+.login-page{position:fixed;inset:0;z-index:300;background:linear-gradient(135deg,#5C0A0A 0%,#7A1212 50%,#4A0606 100%);display:flex;align-items:center;justify-content:center;padding:20px;transition:opacity .35s}
 .login-page.hide{opacity:0;pointer-events:none}
-.login-logo{padding:30px 0 20px;text-align:center}
-.login-logo img{height:80px;display:block;margin:0 auto 10px}
-.login-logo .sub{font-size:12px;opacity:.75;letter-spacing:3px;color:#fff}
-.login-card{background:#fff;border-radius:16px;padding:28px 24px;width:100%;max-width:340px;box-shadow:0 4px 30px rgba(0,0,0,.1);text-align:center}
-.login-card label{display:block;font-size:12px;color:#888;text-align:left;margin:10px 0 4px}
-.login-card input{width:100%;padding:10px 12px;border:2px solid #e8e8e8;border-radius:10px;font-size:15px;outline:none;transition:border-color .2s}
+.login-card{border-radius:16px;width:380px;max-width:90vw;padding:36px 32px;background:#fff;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.login-card img{height:64px;display:block;margin:0 auto 8px}
+.login-card h2{font-size:20px;font-weight:700;color:#B22222;margin-bottom:2px}
+.login-card .sub{font-size:12px;color:#888;margin-bottom:20px}
+.login-card label{display:block;font-size:12px;color:#888;text-align:left;margin:8px 0 3px}
+.login-card input{width:100%;padding:10px 14px;border:2px solid #e8e8e8;border-radius:8px;font-size:15px;outline:none;margin-bottom:8px;font-family:inherit;transition:border-color .2s}
 .login-card input:focus{border-color:#B22222}
-.login-card .err{color:#B22222;font-size:11px;margin-top:6px;display:none}
-.login-card .btn-login{width:100%;padding:12px;background:linear-gradient(135deg,#B22222,#8B0000);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-top:16px;letter-spacing:2px}
-.login-card .btn-login:active{opacity:.85}
+.login-card .err{color:#B22222;font-size:11px;margin-top:4px;display:none}
+.login-card .btn-login{width:100%;padding:11px 0;background:linear-gradient(135deg,#B22222,#D4443F);color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer;margin-top:6px;transition:opacity .2s,transform .15s}
+.login-card .btn-login:hover{opacity:.92;transform:translateY(-1px)}
+.login-card .btn-login:active{transform:translateY(0)}
 .login-card .btn-login.loading{opacity:.6;pointer-events:none}
+.login-card .login-hint{font-size:11px;color:#aaa;margin-top:12px}
 
 .hdr{background:linear-gradient(135deg,#B22222,#8B0000);color:#fff;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.15)}
 .hdr-l{display:flex;align-items:center;gap:8px}
@@ -136,17 +138,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
 
 <!-- 登录页 -->
 <div class="login-page" id="loginPage">
-  <div class="login-logo">
-    <img src="logo.png" alt="湘阁里辣">
-    <div class="sub">等 位 叫 号 系 统</div>
-  </div>
   <div class="login-card">
+    <img src="logo.png" alt="湘阁里辣">
+    <h2>等位叫号系统</h2>
+    <div class="sub">请登录后操作</div>
     <label>用户名</label>
     <input type="text" id="loginUser" value="xgll2122" placeholder="请输入用户名">
     <label>密码</label>
     <input type="password" id="loginPass" value="2122" placeholder="请输入密码">
     <div class="err" id="loginErr"></div>
     <button class="btn-login" id="btnLogin" onclick="doLogin()">登 录</button>
+    <div class="login-hint">与包间预订系统共用账号</div>
   </div>
 </div>
 
