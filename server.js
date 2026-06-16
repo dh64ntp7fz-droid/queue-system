@@ -182,9 +182,10 @@ app.post('/api/store/:storeId/queue', async (req, res) => {
   const storeId = req.params.storeId;
   const { name, phone, people, note } = req.body;
 
-  if (!name || !people) {
-    return res.status(400).json({ error: '请填写姓名和用餐人数' });
+  if (!people) {
+    return res.status(400).json({ error: '请填写用餐人数' });
   }
+  const finalName = name || '顾客';
 
   const queueType = getQueueType(people); // 根据人数自动分配 A/B/C
   const maxSeq = await getTodayMaxSeq(storeId, queueType);
@@ -196,7 +197,7 @@ app.post('/api/store/:storeId/queue', async (req, res) => {
 
   const record = {
     id, store_id: storeId, queue_number: queueNumber, type: queueType,
-    daily_seq: seq, name, phone: phone || '', people: parseInt(people),
+    daily_seq: seq, name: finalName, phone: phone || '', people: parseInt(people),
     note: note || '', status: 'waiting',
     created_by: user.username, created_at: now, updated_at: now
   };
