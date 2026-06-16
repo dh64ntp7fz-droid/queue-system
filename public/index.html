@@ -392,43 +392,69 @@ async function doCall(id){
 function speak(text,times){
   times=times||1;
   if(!window.speechSynthesis)return;
-  // A39 → A 3 9（数字逐位空格分开，防止TTS读成三十九）
+  // 先加载语音列表（安卓需要异步加载）
+  loadVoices();
+  // A39 → A 3 9（数字逐位空格）
   text=text.replace(/([ABC])(\d+)/g,function(_,l,n){
     return l+" "+n.split("").join(" ");
   });
-  // 分离号码和中文，间隔0.3秒
   var m=text.match(/^([A-C][\s\d]+)[,\s]*(.*)/);
-  if(!m){doSpeak(text,times);return}
-  var numPart=m[1];
+  if(!m){cnSpeak(text,times);return}
+  var numPart=m[1].trim();
   var cnPart=m[2];
   var repeat=0,cnt=times||1;
   function loop(){
     if(repeat>=cnt)return;
     repeat++;
-    if(window.speechSynthesis)window.speechSynthesis.cancel();
+    // 号码用英文语音（正确读A和单个数字）
     var u1=new SpeechSynthesisUtterance(numPart);
-    u1.rate=0.75;u1.pitch=1.1;u1.volume=1;
+    u1.lang="en-US";u1.rate=0.7;u1.pitch=1;u1.volume=1;
     u1.onend=function(){
       setTimeout(function(){
+        // 中文用中文语音
         var u2=new SpeechSynthesisUtterance(cnPart);
         u2.lang="zh-CN";u2.rate=0.85;u2.pitch=1.15;u2.volume=1;
         u2.onend=function(){setTimeout(loop,200)};
-        setVoice(u2);
-        window.speechSynthesis.speak(u2);
+        setCnVoice(u2);
+        speakIt(u2);
       },300);
     };
-    // 号码部分用默认语音（自然读字母和数字）
-    window.speechSynthesis.speak(u1);
+    speakIt(u1);
   }
   loop();
 }
-function setVoice(ut){
-  var voices=window.speechSynthesis.getVoices();
-  var best=voices.find(function(v){return v.name==="Ting-Ting"&&v.lang.includes("zh")})||
-          voices.find(function(v){return v.name.includes("Tingting")&&v.lang.includes("zh")})||
-          voices.find(function(v){return v.lang.includes("zh-CN")})||
-          voices.find(function(v){return v.lang.includes("zh")});
-  if(best)ut.voice=best;
+
+var _voicesLoaded=false;
+function loadVoices(){
+  if(_voicesLoaded||!window.speechSynthesis)return;
+  // 强迫加载语音列表（安卓需要）
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged=function(){
+    _voicesLoaded=true;
+    window.speechSynthesis.getVoices();
+  };
+  // 安卓备用：1秒后标记加载完成
+  setTimeout(function(){_voicesLoaded=true},1000);
+  // 安卓初始化：放一个静音语音激活音频
+  try{
+    var wu=new SpeechSynthesisUtterance(" ");
+    wu.volume=0;
+    window.speechSynthesis.speak(wu);
+  }catch(e){}
+}
+function speakIt(ut){
+  try{window.speechSynthesis.speak(ut)}catch(e){}
+}
+function setCnVoice(ut){
+  var v=getCnVoice();
+  if(v)ut.voice=v;
+}
+function getCnVoice(){
+  var vv=window.speechSynthesis.getVoices()||[];
+  return vv.find(function(v){return v.name==="Ting-Ting"&&v.lang.includes("zh")})||
+         vv.find(function(v){return v.name.includes("Tingting")&&v.lang.includes("zh")})||
+         vv.find(function(v){return v.lang.includes("zh-CN")})||
+         vv.find(function(v){return v.lang.includes("zh")})||null;
 }
 
 async function doSkip(id){
@@ -483,8 +509,8 @@ function toggleSkip(){
   w.classList.toggle("show");t.classList.toggle("open");
 }
 
-// 预加载语音
-if(window.speechSynthesis){window.speechSynthesis.getVoices();window.speechSynthesis.onvoiceschanged=function(){window.speechSynthesis.getVoices()}}
+// 预加载语音（安卓需要主动激活）
+if(window.speechSynthesis){loadVoices()}
 
 var _tt;
 function toast(m){var e=document.getElementById("toast");e.textContent=m;e.classList.add("show");clearTimeout(_tt);_tt=setTimeout(function(){e.classList.remove("show")},2000)}
