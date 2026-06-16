@@ -60,9 +60,9 @@ function getTypeName(type) {
 
 app.use(cors());
 app.use(express.json());
-// 静态文件：主管理页面重定向到 public/
+// 静态文件
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
-app.use('/public', express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // ── SSE 通知 ──
 function notifyAll(event, data) {

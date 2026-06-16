@@ -12,10 +12,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
 /* 登录页 */
 .login-page{position:fixed;inset:0;z-index:300;background:linear-gradient(180deg,#B22222 0%,#C62828 30%,#f0f2f5 30%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;transition:opacity .3s}
 .login-page.hide{opacity:0;pointer-events:none}
-.login-logo{padding:30px 0 24px;color:#fff;text-align:center}
-.login-logo .icon{font-size:40px;display:block;margin-bottom:4px}
-.login-logo h1{font-size:24px;font-weight:800;letter-spacing:6px}
-.login-logo .sub{font-size:11px;opacity:.65;margin-top:4px;letter-spacing:2px}
+.login-logo{padding:30px 0 20px;text-align:center}
+.login-logo img{height:80px;display:block;margin:0 auto 10px;filter:brightness(0) invert(1)}
+.login-logo .sub{font-size:12px;opacity:.75;letter-spacing:3px;color:#fff}
 .login-card{background:#fff;border-radius:16px;padding:28px 24px;width:100%;max-width:340px;box-shadow:0 4px 30px rgba(0,0,0,.1);text-align:center}
 .login-card label{display:block;font-size:12px;color:#888;text-align:left;margin:10px 0 4px}
 .login-card input{width:100%;padding:10px 12px;border:2px solid #e8e8e8;border-radius:10px;font-size:15px;outline:none;transition:border-color .2s}
@@ -26,6 +25,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
 .login-card .btn-login.loading{opacity:.6;pointer-events:none}
 
 .hdr{background:linear-gradient(135deg,#B22222,#8B0000);color:#fff;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.hdr-l{display:flex;align-items:center;gap:8px}
+.hdr-l img{height:32px;filter:brightness(0) invert(1)}
 .hdr h1{font-size:16px;font-weight:700}
 .hdr .v{font-size:9px;opacity:.5}
 .hdr .sub{font-size:11px;opacity:.85;margin-top:2px}
@@ -136,8 +137,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
 <!-- 登录页 -->
 <div class="login-page" id="loginPage">
   <div class="login-logo">
-    <span class="icon">🍜</span>
-    <h1>湘阁里辣</h1>
+    <img src="logo.png" alt="湘阁里辣">
     <div class="sub">等 位 叫 号 系 统</div>
   </div>
   <div class="login-card">
@@ -151,7 +151,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
 </div>
 
 <div class="hdr">
-  <div><h1>湘阁里辣 · 等位叫号 <span class="v">v2.8</span></h1><div class="sub" id="storeLabel">🔄 连接中...</div></div>
+  <div class="hdr-l">
+    <img src="logo.png" alt="湘阁里辣">
+    <div><h1>湘阁里辣 · 等位叫号 <span class="v">v2.8</span></h1><div class="sub" id="storeLabel">🔄 连接中...</div></div>
+  </div>
   <div class="hbtns"><button onclick="showSettings()">⚙️</button></div>
 </div>
 
