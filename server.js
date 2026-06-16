@@ -268,8 +268,7 @@ app.post('/api/store/:storeId/queue/:id/call', async (req, res) => {
   if (!record) return res.status(404).json({ error: '排队记录不存在' });
 
   const now = new Date().toISOString();
-  const updates = {
-    status: 'called',
+  var updates = {
     called_at: now,
     called_count: (record.called_count || 0) + 1,
     updated_at: now
@@ -277,7 +276,7 @@ app.post('/api/store/:storeId/queue/:id/call', async (req, res) => {
 
   await supabase.from('queue').update(updates).eq('id', id);
 
-  const updated = { ...record, ...updates };
+  var updated = { ...record, ...updates };
   notifyAll('queue_update', { action: 'called', record: updated, storeId: req.params.storeId });
 
   // 发送通知
@@ -538,7 +537,8 @@ setInterval(async () => {
     const threeMinAgo = new Date(Date.now() - 3 * 60 * 1000).toISOString();
     const { data } = await supabase.from('queue')
       .select('id,queue_number,store_id,name')
-      .eq('status', 'called')
+      .eq('status', 'waiting')
+      .gt('called_count', 0)
       .lt('called_at', threeMinAgo);
 
     if (data && data.length > 0) {

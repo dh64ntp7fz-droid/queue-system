@@ -51,15 +51,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
 .qcard .qbadge{display:inline-block;background:#FF9800;color:#fff;font-size:9px;padding:2px 8px;border-radius:3px;margin-bottom:4px;font-weight:600}
 
 /* 已叫号横条 */
-.called-strip{background:#fff;border-radius:10px;padding:10px 12px;margin-bottom:12px;box-shadow:0 1px 2px rgba(0,0,0,.04);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.called-strip .cs-label{font-size:12px;font-weight:700;color:#E65100;white-space:nowrap;flex-shrink:0}
-.called-strip .cs-chips{display:flex;gap:6px;flex-wrap:wrap;flex:1}
-.called-chip{padding:4px 12px;border-radius:14px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:transform .1s}
-.called-chip:active{transform:scale(.95)}
-.called-chip.ca{background:#FFF3E0;color:#E65100;border:1px solid #FFCC80}
-.called-chip.cb{background:#E8F5E9;color:#2E7D32;border:1px solid #A5D6A7}
-.called-chip.cc{background:#E3F2FD;color:#1565C0;border:1px solid #90CAF9}
-.called-strip .cs-empty{font-size:11px;color:#ccc}
+.call-badge{display:inline-block;font-size:10px;background:#FFF3E0;color:#E65100;padding:1px 6px;border-radius:8px;font-weight:700;margin-left:4px;vertical-align:middle}
 
 /* 过号 */
 .skip-sec{margin-bottom:12px}
@@ -129,6 +121,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
   <div class="hbtns"><button onclick="showSettings()">⚙️</button></div>
 </div>
 
+<div class="pb-wrap"><div class="pb-row" id="pRow"></div></div>
+
 <div class="main" id="mainScroll">
 
   <!-- 三列等位区 -->
@@ -147,20 +141,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
     </div>
   </div>
 
-  <!-- 已叫号横条 -->
-  <div class="called-strip" id="calledStrip" style="display:none">
-    <span class="cs-label">📣 已叫号</span>
-    <span class="cs-chips" id="calledChips"></span>
-  </div>
-
   <!-- 过号 -->
   <div class="hist-block" id="skipSec" style="display:none">
     <div class="hist-tog" onclick="toggleSkip()"><span class="arr" id="skipArr">▶</span> ⏭️ 已过号 <span id="skipCnt" style="font-size:10px;color:#999;font-weight:400"></span></div>
     <div class="hist-wrap" id="skipWrap"><div class="skip-row" id="skipRow" style="padding:8px 12px"></div></div>
   </div>
-
-  <!-- 快速取号 -->
-  <div class="pb-wrap" style="position:static;border:none;background:transparent;padding:0 0 10px 0"><div class="pb-row" id="pRow"></div></div>
 
   <!-- 历史 -->
   <div class="hist-block" id="histBlock">
@@ -251,12 +236,12 @@ async function load(){
   }catch(e){console.error("load error:",e)}
 }
 
-function render(){renderW();renderCalled();renderS();renderH()}
+function render(){renderW();renderS();renderH()}
 
 function colName(t){return t==="A"?"小桌":t==="B"?"中桌":"大桌"}
 
 function renderW(){
-  var waiting=S.queues.filter(function(q){return q.status==="waiting"});
+  var waiting=S.queues.filter(function(q){return q.status==="waiting"||q.status==="called"});
   var byType={A:[],B:[],C:[]};
   waiting.forEach(function(q){
     byType[q.type]=byType[q.type]||[];
@@ -268,21 +253,13 @@ function renderW(){
     if(!list.length){el.innerHTML="<div class=empty-hint>暂无排队</div>";return}
     el.innerHTML=list.map(function(q){
       var ws=' data-ts="'+q.created_at+'"';
-      return '<div class=qcard><div class=qnum>'+q.queue_number+'</div><div class=qppl>'+q.people+'人</div><div class=qwait'+ws+'>排队中...</div><div class=qacts><button class=b-call onclick=doCall("'+q.id+'")>叫号</button><button class=b-skip onclick=doSkip("'+q.id+'")>过号</button><button class=b-seat onclick=doSeat("'+q.id+'")>入座</button></div></div>';
+      var cc=q.called_count>0?'<span class=call-badge>📣×'+q.called_count+'</span>':'';
+      return '<div class=qcard><div class=qnum>'+q.queue_number+'</div><div class=qppl>'+q.people+'人 '+cc+'</div><div class=qwait'+ws+'>排队中...</div><div class=qacts><button class=b-call onclick=doCall("'+q.id+'")>叫号</button><button class=b-skip onclick=doSkip("'+q.id+'")>过号</button><button class=b-seat onclick=doSeat("'+q.id+'")>入座</button></div></div>';
     }).join("");
   });
 }
 
-function renderCalled(){
-  var called=S.queues.filter(function(q){return q.status==="called"});
-  var strip=document.getElementById("calledStrip");
-  if(!called.length){strip.style.display="none";return}
-  strip.style.display="flex";
-  document.getElementById("calledChips").innerHTML=called.map(function(q){
-    var cc=q.type==="A"?"ca":q.type==="B"?"cb":"cc";
-    return '<span class="called-chip '+cc+'" onclick=doCall("'+q.id+'") title="点击重新叫号">'+q.queue_number+' '+q.people+'人</span>';
-  }).join("");
-}
+function typeLabel(t){return t==="A"?"1-2人":t==="B"?"3-4人":"5人以上"}
 
 function renderS(){
   var skipped=S.queues.filter(function(q){return q.status==="skipped"});
@@ -296,14 +273,14 @@ function renderS(){
 }
 
 function renderH(){
-  var sm={waiting:"等位中",called:"已叫号",seated:"已入座",skipped:"已过号",cancelled:"已取消"};
+  var sm={waiting:"等位中",seated:"已入座",skipped:"已过号",cancelled:"已取消"};
   document.getElementById("hBody").innerHTML=S.queues.slice().reverse().map(function(q){
+    var st=sm[q.status]||q.status;
+    if(q.status==="waiting"&&q.called_count>0)st="已叫"+q.called_count+"次";
     var cancelBtn=q.status==="waiting"?'<button class=rbtn onclick=doCancel("'+q.id+'")>撤号</button>':"";
-    return "<tr><td>"+q.queue_number+"</td><td>"+q.people+"人</td><td>"+(sm[q.status]||q.status)+"</td><td>"+cancelBtn+"</td></tr>";
+    return "<tr><td>"+q.queue_number+"</td><td>"+q.people+"人</td><td>"+st+"</td><td>"+cancelBtn+"</td></tr>";
   }).join("");
 }
-
-function typeLabel(t){return t==="A"?"1-2人":t==="B"?"3-4人":"5人以上"}
 
 async function take(people){
   if(!people||people<1)return;
@@ -343,20 +320,18 @@ async function doCall(id){
 
 function speak(text){
   if(!window.speechSynthesis)return;
-  // 叮咚前缀+号码空格分离避免TTS读错
-  var fullText="叮咚~ "+text.replace(/([ABC])(\d)/g,"$1 $2")+"。请到前台用餐。";
+  // 字母加句号防止TTS读成"啊"，如 A.3号
+  text=text.replace(/([ABC])(\d)/g,"$1. $2");
   var voices=window.speechSynthesis.getVoices();
-  // 优先选高品质中文语音 Ting-Ting (macOS增强版) > Tingting > 任意中文女声
   var best=voices.find(function(v){return v.name==="Ting-Ting"&&v.lang.includes("zh")})||
           voices.find(function(v){return v.name.includes("Tingting")&&v.lang.includes("zh")})||
           voices.find(function(v){return v.lang.includes("zh-CN")})||
           voices.find(function(v){return v.lang.includes("zh")});
-  // 根据语音风格调整音调: 0标准女声1.12 / 1清脆女声1.35 / 2沉稳0.95
   var pitchMap={"0":1.12,"1":1.35,"2":0.95};
   var pt=pitchMap[S.stg.voice]||1.12;
   var rt=S.stg.speechRate||0.82;
   function u(i){if(i>=3)return;
-    var ut=new SpeechSynthesisUtterance(fullText);
+    var ut=new SpeechSynthesisUtterance(text);
     ut.lang="zh-CN";ut.rate=rt;ut.pitch=pt;ut.volume=1;
     if(best)ut.voice=best;
     ut.onend=function(){u(i+1)};
