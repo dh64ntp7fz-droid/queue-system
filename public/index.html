@@ -237,7 +237,53 @@ body {
 .empty-queue .empty-icon { font-size:64px; margin-bottom:16px; opacity:.5; }
 .empty-queue p { font-size:15px; }
 
-/* ── 统计栏 ── */
+/* ── 快速取号栏 ── */
+.quick-take {
+  background: #fff; border-bottom: 1px solid #f0f0f0;
+  padding: 10px 24px; position: sticky; top: 0; z-index: 50;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.quick-take-inner {
+  max-width: 1400px; margin: 0 auto; display: flex;
+  align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.quick-label { font-weight: 700; font-size: 14px; color: var(--primary); white-space: nowrap; }
+.quick-type {
+  padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 700;
+  background: var(--orange-bg); color: var(--orange); white-space: nowrap;
+}
+.quick-input {
+  padding: 8px 12px; border: 2px solid #e8e8e8; border-radius: 8px;
+  font-size: 14px; font-family: inherit; outline: none; background: #fafafa;
+  transition: .2s;
+}
+.quick-input:focus { border-color: var(--primary); background: #fff; }
+.quick-input { width: 80px; }
+.quick-input.note { width: 140px; }
+.quick-btn { flex: 0 0 auto; padding: 8px 24px !important; font-size: 14px !important; }
+
+/* ── 三列排队区 ── */
+.queue-cols {
+  display: flex; gap: 16px; align-items: flex-start;
+}
+@media(max-width:900px) { .queue-cols { flex-direction: column; } }
+.queue-col {
+  flex: 1; min-width: 0;
+  background: #fafafa; border-radius: var(--radius); padding: 12px;
+}
+.queue-col .section-title { margin-bottom: 10px; font-size: 14px; }
+.queue-list { display: flex; flex-direction: column; gap: 8px; }
+
+/* ── 列内卡片（紧凑版）── */
+.queue-col .queue-card { padding: 10px 12px; }
+.queue-col .queue-card::before { height: 3px; }
+.queue-col .queue-number { font-size: 24px; }
+.queue-col .queue-info { font-size: 12px; line-height: 1.6; }
+.queue-col .queue-actions button { font-size: 10px; padding: 5px 3px; }
+.empty-slot {
+  text-align: center; padding: 20px; color: var(--text-light); font-size: 13px;
+  border: 2px dashed #e0e0e0; border-radius: var(--radius);
+}
 .stats-bar {
   display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap;
 }
@@ -298,9 +344,20 @@ body {
     <select class="store-select" id="storeSelect" onchange="onStoreChange()"></select>
     <input type="date" class="date-picker" id="datePicker">
     <span class="status-badge"><span class="dot live"></span> <span id="liveClock">--:--</span></span>
-    <button class="header-btn primary" onclick="showNewQueue()">＋ 现场取号</button>
     <button class="header-btn" onclick="exportCSV()">📥 导出</button>
     <button class="header-btn" onclick="doLogout()">退出</button>
+  </div>
+</div>
+
+<!-- ── 快速取号栏 ── -->
+<div class="quick-take" id="quickTake">
+  <div class="quick-take-inner">
+    <span class="quick-label">📝 现场取号</span>
+    <input type="number" id="quickPeople" class="quick-input" placeholder="人数" min="1" max="99" value="2" oninput="updateTakeType()">
+    <span class="quick-type" id="quickType">B区</span>
+    <input type="tel" id="quickPhone" class="quick-input" placeholder="手机号(选填)" maxlength="11">
+    <input type="text" id="quickNote" class="quick-input note" placeholder="备注(选填)" maxlength="30">
+    <button class="btn btn-primary quick-btn" onclick="quickTake()">取号</button>
   </div>
 </div>
 
@@ -313,22 +370,26 @@ body {
     <div class="stat-card seated"><div class="stat-num" id="statSeated">0</div><div class="stat-label">✅ 已入座</div></div>
   </div>
 
-  <!-- 👤 A区：1人 -->
-  <div class="section-title">👤 A区 <span class="section-badge a">1人</span></div>
-  <div class="queue-grid" id="queueGridA">
-    <div class="empty-queue"><div class="empty-icon">📭</div><p>暂无排队</p></div>
-  </div>
-
-  <!-- 👥 B区：2-4人 -->
-  <div class="section-title">👥 B区 <span class="section-badge b">2-4人</span></div>
-  <div class="queue-grid" id="queueGridB">
-    <div class="empty-queue"><div class="empty-icon">📭</div><p>暂无排队</p></div>
-  </div>
-
-  <!-- 👨‍👩‍👧‍👦 C区：5人以上 -->
-  <div class="section-title">👨‍👩‍👧‍👦 C区 <span class="section-badge c">5人以上</span></div>
-  <div class="queue-grid" id="queueGridC">
-    <div class="empty-queue"><div class="empty-icon">📭</div><p>暂无排队</p></div>
+  <!-- 三列排队区 -->
+  <div class="queue-cols" id="queueCols">
+    <div class="queue-col" id="queueColA">
+      <div class="section-title">👤 A区 <span class="section-badge a">1人</span></div>
+      <div class="queue-list" id="queueListA">
+        <div class="empty-slot">📭 暂无</div>
+      </div>
+    </div>
+    <div class="queue-col" id="queueColB">
+      <div class="section-title">👥 B区 <span class="section-badge b">2-4人</span></div>
+      <div class="queue-list" id="queueListB">
+        <div class="empty-slot">📭 暂无</div>
+      </div>
+    </div>
+    <div class="queue-col" id="queueColC">
+      <div class="section-title">👨‍👩‍👧‍👦 C区 <span class="section-badge c">5人+</span></div>
+      <div class="queue-list" id="queueListC">
+        <div class="empty-slot">📭 暂无</div>
+      </div>
+    </div>
   </div>
 
   <!-- 底部记录表格 -->
@@ -350,39 +411,6 @@ body {
           <tr><td colspan="10" class="no-data">暂无记录</td></tr>
         </tbody>
       </table>
-    </div>
-  </div>
-</div>
-
-<!-- ── 新增取号弹窗 ── -->
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal">
-    <h2 id="modalTitle">📝 现场取号</h2>
-    <div class="form-row">
-      <div class="form-group">
-        <label>用餐人数 <span class="req">*</span></label>
-        <input type="number" id="mqPeople" placeholder="如: 4" min="1" max="99" value="2" oninput="updateTypePreview()">
-      </div>
-      <div class="form-group">
-        <label>自动号段</label>
-        <div id="mqTypePreview" style="padding:10px 14px;border:2px solid #e8e8e8;border-radius:8px;font-size:15px;background:#f5f5f5;font-weight:700;color:var(--primary);">B区(2-4人)</div>
-      </div>
-    </div>
-    <div class="form-group">
-      <label>顾客姓名 <span class="req">*</span></label>
-      <input type="text" id="mqName" placeholder="如: 张先生">
-    </div>
-    <div class="form-group">
-      <label>手机号码</label>
-      <input type="tel" id="mqPhone" placeholder="接收叫号短信通知" maxlength="11">
-    </div>
-    <div class="form-group">
-      <label>备注</label>
-      <textarea id="mqNote" placeholder="如: 需要宝宝椅、靠窗位置等"></textarea>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-secondary" onclick="closeModal()">取消</button>
-      <button class="btn btn-primary" onclick="submitNewQueue()">确认取号</button>
     </div>
   </div>
 </div>
@@ -544,7 +572,6 @@ function connectSSE() {
   const evt = new EventSource('/api/events');
   evt.addEventListener('queue_update', e => {
     const d = JSON.parse(e.data);
-    // 仅刷新当前门店或管理员
     if (!state.isAdmin && d.storeId !== state.store) return;
     if (state.isAdmin && d.storeId && document.getElementById('storeSelect').value !== 'all' && d.storeId !== state.store) return;
     loadAll();
@@ -552,11 +579,30 @@ function connectSSE() {
   evt.onerror = () => { evt.close(); setTimeout(connectSSE, 5000); };
 }
 
+// 🎙 语音叫号（重复5次，由用户点击触发）
+function speakNumber(record) {
+  if (!window.speechSynthesis) return;
+  const typeLabel = { A: 'A区1人', B: 'B区2到4人', C: 'C区5人以上' }[record.type] || '';
+  const text = `${typeLabel}，${record.queue_number}号，请到前台就餐`;
+  function utter(i) {
+    if (i >= 5) return;
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'zh-CN';
+    u.rate = 0.9;
+    u.pitch = 1.1;
+    u.volume = 1;
+    u.onend = () => utter(i + 1);
+    window.speechSynthesis.speak(u);
+  }
+  window.speechSynthesis.cancel();
+  utter(0);
+}
+
 // ── 渲染 ──
 function renderAll() {
-  renderQueueGroup('queueGridA', state.queueA, 'A');
-  renderQueueGroup('queueGridB', state.queueB, 'B');
-  renderQueueGroup('queueGridC', state.queueC, 'C');
+  renderQueueGroup('queueListA', state.queueA, 'A');
+  renderQueueGroup('queueListB', state.queueB, 'B');
+  renderQueueGroup('queueListC', state.queueC, 'C');
   updateStats();
   renderTable();
 }
@@ -708,53 +754,41 @@ function switchTab(tab) {
   renderTable();
 }
 
-// ── 弹窗 ──
-function showNewQueue() {
-  document.getElementById('modalTitle').textContent = '📝 现场取号';
-  document.getElementById('mqName').value = '';
-  document.getElementById('mqPhone').value = '';
-  document.getElementById('mqPeople').value = '2';
-  document.getElementById('mqNote').value = '';
-  document.getElementById('modalOverlay').classList.add('show');
-  updateTypePreview();
+// ── 快速取号（内联）──
+function updateTakeType() {
+  const p = parseInt(document.getElementById('quickPeople').value) || 1;
+  let label, color;
+  if (p === 1) { label = 'A区'; color = 'var(--blue)'; }
+  else if (p <= 4) { label = 'B区'; color = 'var(--orange)'; }
+  else { label = 'C区'; color = 'var(--purple)'; }
+  const el = document.getElementById('quickType');
+  el.textContent = label;
+  el.style.color = color;
+  el.style.borderColor = color;
 }
 
-function updateTypePreview() {
-  const people = parseInt(document.getElementById('mqPeople').value) || 1;
-  let label;
-  if (people === 1) label = 'A区(1人)';
-  else if (people >= 2 && people <= 4) label = 'B区(2-4人)';
-  else label = 'C区(5人以上)';
-  document.getElementById('mqTypePreview').textContent = label;
-}
-
-function closeModal() {
-  document.getElementById('modalOverlay').classList.remove('show');
-}
-
-async function submitNewQueue() {
-  const name = document.getElementById('mqName').value.trim();
-  const phone = document.getElementById('mqPhone').value.trim();
-  const people = parseInt(document.getElementById('mqPeople').value) || 2;
-  const note = document.getElementById('mqNote').value.trim();
-
-  if (!name) { toast('请填写顾客姓名', 'error'); return; }
+async function quickTake() {
+  const people = parseInt(document.getElementById('quickPeople').value) || 1;
+  const phone = document.getElementById('quickPhone').value.trim();
+  const note = document.getElementById('quickNote').value.trim();
 
   try {
     const r = await fetch(`/api/store/${state.store}/queue`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + state.token },
-      body: JSON.stringify({ name, phone, people, note })
+      body: JSON.stringify({ name: '顾客', phone, people, note })
     });
     const d = await r.json();
     if (!r.ok) { toast(d.error || '取号失败', 'error'); return; }
 
-    closeModal();
     toast(`取号成功: ${d.queue_number}`);
     loadAll();
-
-    // 自动打印小票
     autoPrintTicket(d);
+    // 清空
+    document.getElementById('quickPhone').value = '';
+    document.getElementById('quickNote').value = '';
+    document.getElementById('quickPeople').value = '2';
+    updateTakeType();
   } catch(e) { toast('取号失败: ' + e.message, 'error'); }
 }
 
@@ -766,7 +800,10 @@ async function callQueue(id, storeId) {
       method: 'POST', headers: { 'Authorization': 'Bearer ' + state.token }
     });
     const d = await r.json();
-    if (r.ok) { toast(`叫号: ${d.queue_number}`); /* SSE 自动刷新 */ }
+    if (r.ok) {
+      toast(`叫号: ${d.queue_number}`);
+      speakNumber(d); // 🎙 语音叫号5遍
+    }
     else toast(d.error || '操作失败', 'error');
   } catch(e) { toast('操作失败', 'error'); }
 }
