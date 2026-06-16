@@ -19,7 +19,7 @@
 | 前端 | HTML + CSS + JS（原生） | 与预订系统UI完全一致 |
 | 后端 | Node.js + Express | 端口 3457 |
 | 数据库 | Supabase | 复用预订系统同一项目 |
-| 部署 | Render | 与预订系统部署流程一致 |
+| 部署 | Render | 自动保活（每10分钟ping） |
 | 实时 | SSE (EventSource) | 多终端自动同步 |
 | 通知 | 腾讯云SMS + 企微Webhook | 复用预订系统模板和配置 |
 
@@ -218,31 +218,25 @@ WECOM_WEBHOOK_URL=企微机器人Webhook地址
 cd /Users/johnny/queue-system
 npm install
 node server.js
-# 访问 http://localhost:3457
-# 顾客扫码页: http://localhost:3457/public/scan.html?store=dalang
+# 顾客扫码取号: http://localhost:3457
+# 管理面板:      http://localhost:3457/admin
 ```
 
 ### 5.4 Render 部署
 
-与预订系统部署流程完全一致：
-
-1. 推送代码到 GitHub：
 ```bash
+# 推送代码到 GitHub
 cd /Users/johnny/queue-system
-git init
-git add .
-git commit -m "等位叫号系统 V1.0"
-git remote add origin https://github.com/你的账号/queue-system.git
-git push -u origin main
+git push
+# Render 自动部署（已关联 GitHub 仓库）
 ```
 
-2. Render 创建 Web Service：
-   - 连接 GitHub 仓库
-   - Build Command: `npm install`
-   - Start Command: `node server.js`
-   - 添加所有环境变量（同 .env）
+| 入口 | 地址 |
+|------|------|
+| 🏠 顾客扫码取号 | https://queue-system-zimj.onrender.com/ |
+| 🔐 管理面板 | https://queue-system-zimj.onrender.com/admin |
 
-3. 部署完成后获得公网地址，如 `https://queue-system.onrender.com`
+> ⚠️ Render 免费服务 15 分钟无访问会自动休眠，已配置每 10 分钟自动保活 ping。
 
 ---
 
@@ -310,8 +304,10 @@ queue-system/
 ├── supabase_queue_setup.sql   # 数据库建表脚本
 ├── README.md                  # 本文档
 └── public/
-    ├── index.html             # 主管理页面（前台/管理员）
-    └── scan.html              # 顾客扫码取号页
+    ├── index.html             # 🔐 管理面板（/admin）
+    ├── scan.html              # 🏠 顾客扫码取号页（/）
+    ├── s.html                 # 排队凭证页
+    └── logo.png               # 透明logo
 ```
 
 ---
