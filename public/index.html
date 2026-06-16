@@ -389,9 +389,9 @@ async function doCall(id){
 function speak(text,times){
   times=times||1;
   if(!window.speechSynthesis)return;
-  // A39 → A 3 9（数字逐位空格，防读成三十九）
+  // A39 → A.4 1（加点分隔字母，防止中文TTS把A读成啊）
   text=text.replace(/([ABC])(\d+)/g,function(_,l,n){
-    return l+" "+n.split("").join(" ");
+    return l+". "+n.split("").join(" ");
   });
   var repeat=0,cnt=times||1;
   function loop(){
