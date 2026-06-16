@@ -419,7 +419,6 @@ async function doSkip(id){
 }
 
 async function doSeat(id){
-  if(!confirm("确认入座？"))return;
   try{await fetch("/api/store/"+S.store+"/queue/"+id+"/seat",{method:"POST",headers:{Authorization:"Bearer "+S.token}});await load()}catch(e){toast("操作失败")}
 }
 
