@@ -389,56 +389,26 @@ async function doCall(id){
 function speak(text,times){
   times=times||1;
   if(!window.speechSynthesis)return;
-  // A39 → A 3 9（数字逐位空格）
+  // A39 → A 3 9（数字逐位空格，防读成三十九）
   text=text.replace(/([ABC])(\d+)/g,function(_,l,n){
     return l+" "+n.split("").join(" ");
   });
-  var m=text.match(/^([A-C][\s\d]+)[,\s]*(.*)/);
-  if(!m){enSpeak(text,times);return}
-  var numPart=m[1].trim();
-  var cnPart=m[2];
   var repeat=0,cnt=times||1;
   function loop(){
     if(repeat>=cnt)return;
     repeat++;
-    enSpeak(numPart,function(){
-      setTimeout(function(){
-        cnSpeak(cnPart,function(){setTimeout(loop,200)});
-      },100);
-    });
+    var ut=new SpeechSynthesisUtterance(text);
+    ut.lang="zh-CN";ut.rate=0.85;ut.pitch=1.15;
+    var vv=window.speechSynthesis.getVoices();
+    var v=vv.find(function(v){return v.name==="Ting-Ting"&&v.lang.includes("zh")})||
+          vv.find(function(v){return v.name.includes("Tingting")&&v.lang.includes("zh")})||
+          vv.find(function(v){return v.lang.includes("zh-CN")})||
+          vv.find(function(v){return v.lang.includes("zh")});
+    if(v)ut.voice=v;
+    ut.onend=function(){setTimeout(loop,200)};
+    try{window.speechSynthesis.speak(ut)}catch(e){}
   }
   loop();
-}
-// 找英文语音（念A就是A，不是啊）
-function enSpeak(text,cb){
-  if(!window.speechSynthesis){if(cb)cb();return}
-  var vv=window.speechSynthesis.getVoices();
-  // 优先选原生英文语音（发音准，字母读A不是啊）
-  var v=vv.find(function(v){return v.name.includes("Samantha")&&v.lang.includes("en")})||
-        vv.find(function(v){return v.name.includes("Google US")&&v.lang.includes("en")})||
-        vv.find(function(v){return v.name.includes("Microsoft David")})||
-        vv.find(function(v){return v.name.includes("Microsoft Zira")})||
-        vv.find(function(v){return v.lang==="en-US"})||
-        vv.find(function(v){return v.lang.startsWith("en")});
-  var ut=new SpeechSynthesisUtterance(text);
-  ut.lang="en-US";ut.rate=0.7;ut.pitch=1;
-  if(v)ut.voice=v;
-  if(cb)ut.onend=cb;
-  try{window.speechSynthesis.speak(ut)}catch(e){if(cb)cb()}
-}
-// 中文语音
-function cnSpeak(text,cb){
-  if(!text||!window.speechSynthesis){if(cb)cb();return}
-  var vv=window.speechSynthesis.getVoices();
-  var v=vv.find(function(v){return v.name==="Ting-Ting"&&v.lang.includes("zh")})||
-        vv.find(function(v){return v.name.includes("Tingting")&&v.lang.includes("zh")})||
-        vv.find(function(v){return v.lang.includes("zh-CN")})||
-        vv.find(function(v){return v.lang.includes("zh")});
-  var ut=new SpeechSynthesisUtterance(text);
-  ut.lang="zh-CN";ut.rate=0.85;ut.pitch=1.15;
-  if(v)ut.voice=v;
-  if(cb)ut.onend=cb;
-  try{window.speechSynthesis.speak(ut)}catch(e){if(cb)cb()}
 }
 
 async function doSkip(id){
