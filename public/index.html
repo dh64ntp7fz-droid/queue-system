@@ -392,8 +392,6 @@ async function doCall(id){
 function speak(text,times){
   times=times||1;
   if(!window.speechSynthesis)return;
-  // 先加载语音列表（安卓需要异步加载）
-  loadVoices();
   // A39 → A 3 9（数字逐位空格）
   text=text.replace(/([ABC])(\d+)/g,function(_,l,n){
     return l+" "+n.split("").join(" ");
@@ -403,58 +401,58 @@ function speak(text,times){
   var numPart=m[1].trim();
   var cnPart=m[2];
   var repeat=0,cnt=times||1;
+  // 号码用 Google TTS（全平台发音准，A就是A，数字逐个读）
   function loop(){
     if(repeat>=cnt)return;
     repeat++;
-    // 号码用英文语音（正确读A和单个数字）
-    var u1=new SpeechSynthesisUtterance(numPart);
-    u1.lang="en-US";u1.rate=0.7;u1.pitch=1;u1.volume=1;
-    u1.onend=function(){
+    speakGoogle(numPart,function(){
       setTimeout(function(){
-        // 中文用中文语音
-        var u2=new SpeechSynthesisUtterance(cnPart);
-        u2.lang="zh-CN";u2.rate=0.85;u2.pitch=1.15;u2.volume=1;
-        u2.onend=function(){setTimeout(loop,200)};
-        setCnVoice(u2);
-        speakIt(u2);
+        speakCn(cnPart,function(){setTimeout(loop,200)});
       },100);
-    };
-    speakIt(u1);
+    });
   }
   loop();
 }
-
-var _voicesLoaded=false;
-function loadVoices(){
-  if(_voicesLoaded||!window.speechSynthesis)return;
-  // 强迫加载语音列表（安卓需要）
-  window.speechSynthesis.getVoices();
-  window.speechSynthesis.onvoiceschanged=function(){
-    _voicesLoaded=true;
-    window.speechSynthesis.getVoices();
-  };
-  // 安卓备用：1秒后标记加载完成
-  setTimeout(function(){_voicesLoaded=true},1000);
-  // 安卓初始化：放一个静音语音激活音频
+// 用 Google Translate 免费 TTS — 发音最准，全平台通用
+function speakGoogle(text,cb){
   try{
-    var wu=new SpeechSynthesisUtterance(" ");
-    wu.volume=0;
-    window.speechSynthesis.speak(wu);
-  }catch(e){}
+    var audio=new Audio();
+    audio.src="https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=en&q="+encodeURIComponent(text);
+    audio.onended=function(){if(cb)cb()};
+    audio.onerror=function(){
+      // 如果 Google TTS 加载失败，降级用系统语音
+      var ut=new SpeechSynthesisUtterance(text);
+      ut.lang="en-US";ut.rate=0.7;ut.pitch=1;
+      if(cb)ut.onend=cb;
+      try{window.speechSynthesis.speak(ut)}catch(e){if(cb)cb()}
+    };
+    audio.play().catch(function(){
+      // 如果音频播放失败，降级
+      var ut=new SpeechSynthesisUtterance(text);
+      ut.lang="en-US";ut.rate=0.7;ut.pitch=1;
+      if(cb)ut.onend=cb;
+      try{window.speechSynthesis.speak(ut)}catch(e){if(cb)cb()}
+    });
+  }catch(e){
+    var ut=new SpeechSynthesisUtterance(text);
+    ut.lang="en-US";ut.rate=0.7;
+    if(cb)ut.onend=cb;
+    try{window.speechSynthesis.speak(ut)}catch(e){if(cb)cb()}
+  }
 }
-function speakIt(ut){
-  try{window.speechSynthesis.speak(ut)}catch(e){}
-}
-function setCnVoice(ut){
-  var v=getCnVoice();
-  if(v)ut.voice=v;
-}
-function getCnVoice(){
+// 中文部分用系统中文 TTS
+function speakCn(text,cb){
+  if(!text){if(cb)cb();return}
+  var ut=new SpeechSynthesisUtterance(text);
+  ut.lang="zh-CN";ut.rate=0.85;ut.pitch=1.15;
   var vv=window.speechSynthesis.getVoices()||[];
-  return vv.find(function(v){return v.name==="Ting-Ting"&&v.lang.includes("zh")})||
-         vv.find(function(v){return v.name.includes("Tingting")&&v.lang.includes("zh")})||
-         vv.find(function(v){return v.lang.includes("zh-CN")})||
-         vv.find(function(v){return v.lang.includes("zh")})||null;
+  var v=vv.find(function(v){return v.name==="Ting-Ting"&&v.lang.includes("zh")})||
+        vv.find(function(v){return v.name.includes("Tingting")&&v.lang.includes("zh")})||
+        vv.find(function(v){return v.lang.includes("zh-CN")})||
+        vv.find(function(v){return v.lang.includes("zh")});
+  if(v)ut.voice=v;
+  if(cb)ut.onend=cb;
+  try{window.speechSynthesis.speak(ut)}catch(e){if(cb)cb()}
 }
 
 async function doSkip(id){
@@ -509,8 +507,8 @@ function toggleSkip(){
   w.classList.toggle("show");t.classList.toggle("open");
 }
 
-// 预加载语音（安卓需要主动激活）
-if(window.speechSynthesis){loadVoices()}
+// 预加载语音
+if(window.speechSynthesis){window.speechSynthesis.getVoices()}
 
 var _tt;
 function toast(m){var e=document.getElementById("toast");e.textContent=m;e.classList.add("show");clearTimeout(_tt);_tt=setTimeout(function(){e.classList.remove("show")},2000)}
