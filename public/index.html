@@ -198,8 +198,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
 <div class="mod" id="setMod" onclick="if(event.target===this)closeSettings()">
 <div class="mod-box">
 <h3>⚙️ 叫号设置</h3>
-<label>叫号文字（{{number}} 代表号码）</label>
-<input type="text" id="callTpl" placeholder="{{number}},湘阁里辣请您用餐了！">
 <label>语音风格</label>
 <select id="voiceSel"><option value="0">🎵 情感女声（推荐）</option><option value="1">🍭 甜美清脆</option><option value="2">🎤 沉稳男声</option><option value="3">💞 温柔慢声</option><option value="4">🔊 自然标准</option></select>
 <label>语速: <span id="rateV">0.9</span></label>
@@ -382,9 +380,8 @@ async function doCall(id){
     var r=await fetch("/api/store/"+S.store+"/queue/"+id+"/call",{method:"POST",headers:{Authorization:"Bearer "+S.token}});
     var d=await r.json();
     if(!r.ok){toast(d.error||"失败");return}
-    var tpl=S.stg.callTpl||"{{number}},湘阁里辣请您用餐了！";
-    var txt=tpl.replace("{{number}}",d.queue_number);
-    speak(txt,5);
+    var t=d.queue_number+",湘阁里辣请您用餐了！";
+    speak(t,5);
     await load();
   }catch(e){toast("叫号失败")}
 }
@@ -471,8 +468,7 @@ async function doCancel(id){
 
 function loadStg(){
   var d=JSON.parse(localStorage.getItem("qs")||"{}");
-  S.stg={callTpl:d.callTpl||"{{number}},湘阁里辣请您用餐了！",voice:d.voice||"0",speechRate:d.speechRate||0.85,showQr:d.showQr!==false,autoPrint:d.autoPrint===true};
-  document.getElementById("callTpl").value=S.stg.callTpl;
+  S.stg={voice:d.voice||"0",speechRate:d.speechRate||0.85,showQr:d.showQr!==false,autoPrint:d.autoPrint===true};
   document.getElementById("voiceSel").value=S.stg.voice;
   document.getElementById("spRate").value=S.stg.speechRate;
   document.getElementById("rateV").textContent=S.stg.speechRate;
