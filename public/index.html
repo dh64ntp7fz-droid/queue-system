@@ -392,14 +392,10 @@ async function doCall(id){
 function speak(text,times){
   times=times||1;
   if(!window.speechSynthesis)return;
-  // A39 → 诶 4 1（替换A为中文字"诶"，中文TTS读出来就是英文A的音）
+  // A39 → 诶 39（替换A为中文字"诶"，数字连读更自然）
   text=text.replace(/A/g,"诶");
-  text=text.replace(/([BC])(\d+)/g,function(_,l,n){
-    return l+" "+n.split("").join(" ");
-  });
-  text=text.replace(/诶(\d+)/g,function(_,n){
-    return "诶 "+n.split("").join(" ");
-  });
+  text=text.replace(/([BC])(\d+)/g,"$1 $2");
+  text=text.replace(/诶(\d+)/g,"诶 $1");
   var repeat=0,cnt=times||1;
   function loop(){
     if(repeat>=cnt)return;
