@@ -199,7 +199,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
 <div class="mod-box">
 <h3>⚙️ 叫号设置</h3>
 <label>语音风格</label>
-<select id="voiceSel"><option value="0">🎵 晓晓_甜美播音员（推荐）</option><option value="1">🍭 晓伊_亲切女声</option><option value="2">🎤 云希_阳光男声</option><option value="3">💞 云剑_成熟男声</option></select>
+<select id="voiceSel"><option value="0">🎵 情感女声（推荐）</option><option value="1">🍭 甜美</option><option value="2">🎤 沉稳男声</option><option value="3">🔊 自然标准</option></select>
 <label>语速: <span id="rateV">1.0</span></label>
 <input type="range" id="spRate" min="0.5" max="2.0" step="0.1" value="1.0" oninput="document.getElementById('rateV').textContent=this.value">
 <div class="mod-tog"><span>取号后显示二维码</span><input type="checkbox" id="shQr" checked></div>
@@ -388,55 +388,34 @@ async function doCall(id){
 
 function speak(text,times){
   times=times||1;
+  if(!window.speechSynthesis)return;
   // A39 → A 4 1
   text=text.replace(/([ABC])(\d+)/g,function(_,l,n){
     return l+" "+n.split("").join(" ");
   });
   var repeat=0,cnt=times||1;
+  // 安卓需要预先cancel()确保语音引擎激活
+  try{window.speechSynthesis.cancel()}catch(e){}
   function loop(){
     if(repeat>=cnt)return;
     repeat++;
-    playEdgeTts(text,function(){setTimeout(loop,200)});
-  }
-  loop();
-}
-
-// 微软 Edge TTS — 晓晓(XiaoxiaoNeural) 甜美女播音员
-// 发音准，字母读A不是啊，数字逐个读
-var _edgeBusy=false;
-var _edgeQueue=[];
-function playEdgeTts(text,cb){
-  _edgeQueue.push({text:text,cb:cb});
-  if(!_edgeBusy)nextEdge();
-}
-function nextEdge(){
-  if(!_edgeQueue.length){_edgeBusy=false;return}
-  _edgeBusy=true;
-  var job=_edgeQueue.shift();
-  var voices=["zh-CN-XiaoxiaoNeural","zh-CN-XiaoyiNeural","zh-CN-YunxiNeural","zh-CN-YunjianNeural"];
-  var vi=S.stg.voice||"0";
-  var voice=voices[parseInt(vi)]||voices[0];
-  try{
-    var audio=new Audio();
-    audio.src="https://api.edge-tts.net/api/tts?text="+encodeURIComponent(job.text)+"&voice="+voice+"&rate=0&pitch=0";
-    audio.onended=function(){if(job.cb)job.cb();nextEdge()};
-    audio.onerror=function(){fallbackTts(job)};
-    audio.play().catch(function(){fallbackTts(job)});
-  }catch(e){fallbackTts(job)}
-}
-function fallbackTts(job){
-  try{
-    var ut=new SpeechSynthesisUtterance(job.text);
-    ut.lang="zh-CN";ut.rate=1.0;ut.pitch=1.0;
+    var ut=new SpeechSynthesisUtterance(text);
+    ut.lang="zh-CN";ut.rate=1.0;ut.pitch=1.0;ut.volume=1;
     var vv=window.speechSynthesis.getVoices();
-    var v=vv.find(function(v){return v.name==="Ting-Ting"&&v.lang.includes("zh")})||
+    // 安卓: 先用 Google 普通话（字母读英文）
+    // macOS: 用 Ting-Ting
+    var v=vv.find(function(v){return v.name.includes("Google 普通话")&&v.lang.includes("zh")})||
+          vv.find(function(v){return v.name.includes("Google 粤")&&v.lang.includes("zh")})||
+          vv.find(function(v){return v.name==="Ting-Ting"&&v.lang.includes("zh")})||
           vv.find(function(v){return v.name.includes("Tingting")&&v.lang.includes("zh")})||
+          vv.find(function(v){return v.name.includes("普通话")&&v.lang.includes("zh")})||
           vv.find(function(v){return v.lang.includes("zh-CN")})||
           vv.find(function(v){return v.lang.includes("zh")});
     if(v)ut.voice=v;
-    ut.onend=function(){if(job.cb)job.cb();nextEdge()};
-    window.speechSynthesis.speak(ut);
-  }catch(e){if(job.cb)job.cb();nextEdge()}
+    ut.onend=function(){setTimeout(loop,200)};
+    try{window.speechSynthesis.speak(ut)}catch(e){}
+  }
+  loop();
 }
 
 async function doSkip(id){
@@ -496,6 +475,14 @@ function toggleSkip(){
 if(window.speechSynthesis){
   window.speechSynthesis.getVoices();
   window.speechSynthesis.onvoiceschanged=function(){window.speechSynthesis.getVoices()};
+  // 安卓: 放静音语音激活引擎
+  setTimeout(function(){
+    try{
+      var wu=new SpeechSynthesisUtterance(" ");
+      wu.volume=0;
+      window.speechSynthesis.speak(wu);
+    }catch(e){}
+  },500);
 }
 
 var _tt;
