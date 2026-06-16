@@ -199,7 +199,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
 <div class="mod-box">
 <h3>⚙️ 叫号设置</h3>
 <label>叫号文字（{{number}} 代表号码）</label>
-<input type="text" id="callTpl" placeholder="{{number}}，湘阁里辣请您就餐啦！">
+<input type="text" id="callTpl" placeholder="{{number}},湘阁里辣请您用餐了！">
 <label>语音风格</label>
 <select id="voiceSel"><option value="0">🎵 情感女声（推荐）</option><option value="1">🍭 甜美清脆</option><option value="2">🎤 沉稳男声</option><option value="3">💞 温柔慢声</option><option value="4">🔊 自然标准</option></select>
 <label>语速: <span id="rateV">0.9</span></label>
@@ -252,7 +252,7 @@ async function doLogin(){
     document.getElementById("loginPage").classList.add("hide");
     document.getElementById("storeLabel").textContent=S.storeName;
     genBtns();
-    await loadQueues();
+    await load();
     startSSE();
     setInterval(refreshWait,5000);
     setInterval(function(){
@@ -391,17 +391,10 @@ async function doCall(id){
 
 function speak(text){
   if(!window.speechSynthesis)return;
-  // 字母+数字格式化，让TTS读得更自然
-  text=text.replace(/([ABC])(\d+)/g,"$1 $2 号");
-  text=text.replace(/，/g,"……");
-  text=text.replace(/啦/g,"啦～");
-  // 添加情感化自然停顿
-  text=text.replace(/请您就餐/g,"请您 就 餐");
-  text=text.replace(/就餐啦/g,"就 餐 啦～");
-  text=text.replace(/请就餐/g,"请 就 餐");
+  // 字母+数字间加空格，防止TTS连读
+  text=text.replace(/([ABC])(\d+)/g,"$1 $2");
 
   var voices=window.speechSynthesis.getVoices();
-  // 优选自然度高的中文语音（macOS 有 Ting-Ting, Safari 有更多自然语音）
   var best=voices.find(function(v){return v.name==="Ting-Ting"&&v.lang.includes("zh")})||
           voices.find(function(v){return v.name.includes("Tingting")&&v.lang.includes("zh")})||
           voices.find(function(v){return v.name.includes("Yu-shu")&&v.lang.includes("zh")})||
@@ -410,10 +403,9 @@ function speak(text){
           voices.find(function(v){return v.lang.includes("zh-CN")})||
           voices.find(function(v){return v.lang.includes("zh")});
 
-  // 更丰富的音调映射
   var pitchMap={"0":1.15,"1":1.40,"2":0.90,"3":1.25,"4":1.05};
   var pt=pitchMap[S.stg.voice]||1.15;
-  var rt=S.stg.speechRate||0.78;  // 更慢，更自然
+  var rt=S.stg.speechRate||0.85;
 
   var ut=new SpeechSynthesisUtterance(text);
   ut.lang="zh-CN";ut.rate=rt;ut.pitch=pt;ut.volume=1;
@@ -438,7 +430,7 @@ async function doCancel(id){
 
 function loadStg(){
   var d=JSON.parse(localStorage.getItem("qs")||"{}");
-  S.stg={callTpl:d.callTpl||"{{number}}，湘阁里辣请您就餐啦！",voice:d.voice||"0",speechRate:d.speechRate||0.78,showQr:d.showQr!==false,autoPrint:d.autoPrint===true};
+  S.stg={callTpl:d.callTpl||"{{number}},湘阁里辣请您用餐了！",voice:d.voice||"0",speechRate:d.speechRate||0.85,showQr:d.showQr!==false,autoPrint:d.autoPrint===true};
   document.getElementById("callTpl").value=S.stg.callTpl;
   document.getElementById("voiceSel").value=S.stg.voice;
   document.getElementById("spRate").value=S.stg.speechRate;
