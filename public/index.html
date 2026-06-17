@@ -303,7 +303,7 @@ async function load(){
   try{
     var r=await fetch("/api/store/"+S.store+"/queue",{headers:{Authorization:"Bearer "+S.token}});
     if(!r.ok){console.error("load failed:",r.status);return}
-    S.queues=await r.json();render();
+    S.queues=await r.json();render();upWait();
     console.log("loaded",S.queues.length,"queues");
   }catch(e){console.error("load error:",e)}
 }
