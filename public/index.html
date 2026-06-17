@@ -391,12 +391,23 @@ async function doCall(id){
 
 function speak(text,times){
   times=times||1;
-  if(!window.speechSynthesis)return;
-  // A39 → 诶 39（替换A为中文字"诶"，数字连读更自然）
+  // A39 → 诶 39
   text=text.replace(/A/g,"诶");
   text=text.replace(/([BC])(\d+)/g,"$1 $2");
   text=text.replace(/诶(\d+)/g,"诶 $1");
   var repeat=0,cnt=times||1;
+
+  // 检测企业微信/微信内置浏览器 — 用TTS代理
+  var ua=navigator.userAgent.toLowerCase();
+  var isWecom=ua.includes("wecom")||ua.includes("wxwork")||ua.includes("micromessenger");
+
+  if(isWecom||!window.speechSynthesis){
+    // 企业微信/微信：用服务器TTS代理播放音频
+    playTtsAudio(text,times);
+    return;
+  }
+
+  // 标准浏览器：用Web Speech API
   function loop(){
     if(repeat>=cnt)return;
     repeat++;
@@ -413,6 +424,23 @@ function speak(text,times){
     if(v)ut.voice=v;
     ut.onend=function(){setTimeout(loop,200)};
     try{window.speechSynthesis.speak(ut)}catch(e){}
+  }
+  loop();
+}
+
+// TTS代理播放（企业微信/微信内置浏览器用）
+function playTtsAudio(text,times){
+  var repeat=0,cnt=times||1;
+  function loop(){
+    if(repeat>=cnt)return;
+    repeat++;
+    try{
+      var audio=new Audio();
+      audio.src="/api/tts?text="+encodeURIComponent(text);
+      audio.onended=function(){setTimeout(loop,800)};
+      audio.onerror=function(){setTimeout(loop,800)};
+      audio.play().catch(function(){setTimeout(loop,800)});
+    }catch(e){setTimeout(loop,800)}
   }
   loop();
 }

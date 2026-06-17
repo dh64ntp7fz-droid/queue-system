@@ -60,6 +60,17 @@ function getTypeName(type) {
 
 app.use(cors());
 app.use(express.json());
+// TTS 代理（企业微信等内置浏览器用）
+app.get('/api/tts', (req, res) => {
+  const text = req.query.text || 'A';
+  const url = 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=zh-CN&q=' + encodeURIComponent(text);
+  https.get(url, (tres) => {
+    res.setHeader('Content-Type', tres.headers['content-type'] || 'audio/mpeg');
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    tres.pipe(res);
+  }).on('error', () => res.status(500).end());
+});
+
 // 静态文件
 app.use(express.static(path.join(__dirname, 'public')));
 
