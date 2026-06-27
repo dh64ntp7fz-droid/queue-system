@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 3457;
 
 // ── Supabase 配置（复用预订系统同一项目） ──
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://ieidvazvzulsrfopjvyf.supabase.co';
-const SUPABASE_KEY = process.env.SUPABASE_KEY || '';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImllaWR2YXp2enVsc3Jmb3BqdnlmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDY2ODI2OSwiZXhwIjoyMDk2MjQ0MjY5fQ.KHdCyxDQAGfFjZtHAaq03LEezodhEvJQTjiZ14shObk';
 const supabase = SUPABASE_KEY ? createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
 const WECOM_WEBHOOK_URL = process.env.WECOM_WEBHOOK_URL || 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=d35ec9fd-b3e2-4132-848c-0fbc7ab38107';
